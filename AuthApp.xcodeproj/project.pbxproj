@@ -8,11 +8,26 @@
 
 /* Begin PBXBuildFile section */
 		1000345E2D2D9E0F0007F296 /* SmartbandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000345D2D2D9E0A0007F296 /* SmartbandView.swift */; };
+		100034602D2DD3F40007F296 /* BandInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000345F2D2DD3E60007F296 /* BandInfoView.swift */; };
+		100034622D2DF8C90007F296 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100034612D2DF8C10007F296 /* ProfileView.swift */; };
+		102741482D2E012800C925CD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102741472D2E012600C925CD /* SettingsView.swift */; };
 		102B49B72D2C807A002056F4 /* testDane.json in Resources */ = {isa = PBXBuildFile; fileRef = 102B49B62D2C807A002056F4 /* testDane.json */; };
 		102FB31E2CA5A5F6007A85E1 /* BLEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102FB31D2CA5A5F6007A85E1 /* BLEManager.swift */; };
+		1039100A2D2EBED500D158F6 /* BMIKCALCalc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */; };
+		103910122D2EE18700D158F6 /* BMICalcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910112D2EE18100D158F6 /* BMICalcView.swift */; };
+		103910192D2F225C00D158F6 /* KCALCalcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910182D2F225800D158F6 /* KCALCalcView.swift */; };
+		1039101D2D2F2B9400D158F6 /* ProfileDataUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1039101C2D2F2B8500D158F6 /* ProfileDataUpdateView.swift */; };
+		1039101F2D2F2D8E00D158F6 /* ChangeProfilePicture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1039101E2D2F2D8900D158F6 /* ChangeProfilePicture.swift */; };
+		103910212D2F373200D158F6 /* ChangeTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910202D2F372C00D158F6 /* ChangeTheme.swift */; };
+		103910232D2F3A1700D158F6 /* AppInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910222D2F3A1300D158F6 /* AppInformation.swift */; };
+		103910252D2F3B9900D158F6 /* ContactUs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910242D2F3B9600D158F6 /* ContactUs.swift */; };
 		104DE6542D2866DB003E2398 /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = 104DE6532D2866DB003E2398 /* FLAnimatedImage */; };
 		10730E012D2A139B00C0BDDA /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10730E002D2A139700C0BDDA /* MenuView.swift */; };
 		10730E0A2D2C1C7E00C0BDDA /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10730E092D2C1C7A00C0BDDA /* MainView.swift */; };
+		107553A12D302A450034C450 /* BMIOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107553A02D302A3B0034C450 /* BMIOutcome.swift */; };
+		107553A32D302CC30034C450 /* KCALOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107553A22D302CBF0034C450 /* KCALOutcome.swift */; };
+		107553A52D30392E0034C450 /* TrainingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107553A42D3039270034C450 /* TrainingsView.swift */; };
+		107553A82D303B140034C450 /* SingleTraining.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107553A72D303B0E0034C450 /* SingleTraining.swift */; };
 		10813E972D2750C100002705 /* LogoGif.gif in Resources */ = {isa = PBXBuildFile; fileRef = 10813E952D2750C100002705 /* LogoGif.gif */; };
 		10813E992D2750C100002705 /* LogoGif.gif in Resources */ = {isa = PBXBuildFile; fileRef = 10813E952D2750C100002705 /* LogoGif.gif */; };
 		10813E9B2D2750C100002705 /* LogoGif.gif in Resources */ = {isa = PBXBuildFile; fileRef = 10813E952D2750C100002705 /* LogoGif.gif */; };
@@ -62,10 +77,25 @@
 
 /* Begin PBXFileReference section */
 		1000345D2D2D9E0A0007F296 /* SmartbandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartbandView.swift; sourceTree = "<group>"; };
+		1000345F2D2DD3E60007F296 /* BandInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandInfoView.swift; sourceTree = "<group>"; };
+		100034612D2DF8C10007F296 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		102741472D2E012600C925CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		102B49B62D2C807A002056F4 /* testDane.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testDane.json; sourceTree = "<group>"; };
 		102FB31D2CA5A5F6007A85E1 /* BLEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEManager.swift; sourceTree = "<group>"; };
+		103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIKCALCalc.swift; sourceTree = "<group>"; };
+		103910112D2EE18100D158F6 /* BMICalcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMICalcView.swift; sourceTree = "<group>"; };
+		103910182D2F225800D158F6 /* KCALCalcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KCALCalcView.swift; sourceTree = "<group>"; };
+		1039101C2D2F2B8500D158F6 /* ProfileDataUpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDataUpdateView.swift; sourceTree = "<group>"; };
+		1039101E2D2F2D8900D158F6 /* ChangeProfilePicture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeProfilePicture.swift; sourceTree = "<group>"; };
+		103910202D2F372C00D158F6 /* ChangeTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTheme.swift; sourceTree = "<group>"; };
+		103910222D2F3A1300D158F6 /* AppInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInformation.swift; sourceTree = "<group>"; };
+		103910242D2F3B9600D158F6 /* ContactUs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactUs.swift; sourceTree = "<group>"; };
 		10730E002D2A139700C0BDDA /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		10730E092D2C1C7A00C0BDDA /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		107553A02D302A3B0034C450 /* BMIOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIOutcome.swift; sourceTree = "<group>"; };
+		107553A22D302CBF0034C450 /* KCALOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KCALOutcome.swift; sourceTree = "<group>"; };
+		107553A42D3039270034C450 /* TrainingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingsView.swift; sourceTree = "<group>"; };
+		107553A72D303B0E0034C450 /* SingleTraining.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTraining.swift; sourceTree = "<group>"; };
 		10813E952D2750C100002705 /* LogoGif.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = LogoGif.gif; sourceTree = "<group>"; };
 		10813EB12D27784A00002705 /* RobotoMono-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		108DEFB52D27270900668F4A /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
@@ -125,6 +155,67 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1039100B2D2EBEE200D158F6 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1039101C2D2F2B8500D158F6 /* ProfileDataUpdateView.swift */,
+				1039101E2D2F2D8900D158F6 /* ChangeProfilePicture.swift */,
+				10962DD02C94F3CC0031CEE7 /* ChangePasswordView.swift */,
+				103910202D2F372C00D158F6 /* ChangeTheme.swift */,
+				103910222D2F3A1300D158F6 /* AppInformation.swift */,
+				103910242D2F3B9600D158F6 /* ContactUs.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		1039100D2D2EBF2100D158F6 /* Menu */ = {
+			isa = PBXGroup;
+			children = (
+				10730E092D2C1C7A00C0BDDA /* MainView.swift */,
+				107553A42D3039270034C450 /* TrainingsView.swift */,
+				107553A62D3039D60034C450 /* SingleTrainingView */,
+				103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */,
+				103910102D2EC17600D158F6 /* BMIKCAL Calculator */,
+				1000345D2D2D9E0A0007F296 /* SmartbandView.swift */,
+				100034612D2DF8C10007F296 /* ProfileView.swift */,
+				102741472D2E012600C925CD /* SettingsView.swift */,
+				1039100B2D2EBEE200D158F6 /* Settings */,
+			);
+			path = Menu;
+			sourceTree = "<group>";
+		};
+		1039100E2D2EBFC300D158F6 /* Small Alerts */ = {
+			isa = PBXGroup;
+			children = (
+				1000345F2D2DD3E60007F296 /* BandInfoView.swift */,
+				10962DCE2C94F0200031CEE7 /* CustomResetCodeAlert.swift */,
+				107553A02D302A3B0034C450 /* BMIOutcome.swift */,
+				107553A22D302CBF0034C450 /* KCALOutcome.swift */,
+			);
+			path = "Small Alerts";
+			sourceTree = "<group>";
+		};
+		1039100F2D2EC0E000D158F6 /* Start */ = {
+			isa = PBXGroup;
+			children = (
+				10C829972CE0F72C00453598 /* ProfileDataInputView.swift */,
+				10BC0E602C6A988F00BBEAC6 /* LoginView.swift */,
+				108DEFB52D27270900668F4A /* IntroView.swift */,
+				10962DD22C978D1F0031CEE7 /* LanguageSelectionView.swift */,
+				10BC0E622C6A98CD00BBEAC6 /* RegistrationView.swift */,
+			);
+			path = Start;
+			sourceTree = "<group>";
+		};
+		103910102D2EC17600D158F6 /* BMIKCAL Calculator */ = {
+			isa = PBXGroup;
+			children = (
+				103910112D2EE18100D158F6 /* BMICalcView.swift */,
+				103910182D2F225800D158F6 /* KCALCalcView.swift */,
+			);
+			path = "BMIKCAL Calculator";
+			sourceTree = "<group>";
+		};
 		104DE64F2D285CF2003E2398 /* Gif */ = {
 			isa = PBXGroup;
 			children = (
@@ -139,8 +230,17 @@
 				102FB31D2CA5A5F6007A85E1 /* BLEManager.swift */,
 				10B384BC2CCD48DD002A7F64 /* WebSocketManager.swift */,
 				10EAB1CC2CD19DE0008F7B6F /* DatabaseManager.swift */,
+				10962DE32C9791EB0031CEE7 /* LocalizationManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		107553A62D3039D60034C450 /* SingleTrainingView */ = {
+			isa = PBXGroup;
+			children = (
+				107553A72D303B0E0034C450 /* SingleTraining.swift */,
+			);
+			path = SingleTrainingView;
 			sourceTree = "<group>";
 		};
 		10813EA32D27761400002705 /* Font */ = {
@@ -174,20 +274,14 @@
 		10BC0E352C6A95EB00BBEAC6 /* AuthApp */ = {
 			isa = PBXGroup;
 			children = (
-				102B49B62D2C807A002056F4 /* testDane.json */,
 				10BC0E362C6A95EB00BBEAC6 /* AuthAppApp.swift */,
-				108DEFB52D27270900668F4A /* IntroView.swift */,
-				10BC0E602C6A988F00BBEAC6 /* LoginView.swift */,
-				10962DD22C978D1F0031CEE7 /* LanguageSelectionView.swift */,
-				10BC0E622C6A98CD00BBEAC6 /* RegistrationView.swift */,
-				10C829972CE0F72C00453598 /* ProfileDataInputView.swift */,
+				1039100F2D2EC0E000D158F6 /* Start */,
 				10730E002D2A139700C0BDDA /* MenuView.swift */,
-				10730E092D2C1C7A00C0BDDA /* MainView.swift */,
-				1000345D2D2D9E0A0007F296 /* SmartbandView.swift */,
-				10962DCE2C94F0200031CEE7 /* CustomResetCodeAlert.swift */,
-				10962DD02C94F3CC0031CEE7 /* ChangePasswordView.swift */,
+				1039100D2D2EBF2100D158F6 /* Menu */,
+				1039100E2D2EBFC300D158F6 /* Small Alerts */,
 				10730E082D2C12CC00C0BDDA /* Managers */,
 				10962DC52C8F46140031CEE7 /* Info.plist */,
+				102B49B62D2C807A002056F4 /* testDane.json */,
 				108DEFBD2D273F2100668F4A /* TestView.swift */,
 				10EF96BE2C84BF1E00F55A89 /* WelcomeView.swift */,
 				10C245E42CC848060078B6A0 /* BandView.swift */,
@@ -196,7 +290,6 @@
 				10813EA32D27761400002705 /* Font */,
 				104DE64F2D285CF2003E2398 /* Gif */,
 				10BC0E3C2C6A95EC00BBEAC6 /* Preview Content */,
-				10962DE32C9791EB0031CEE7 /* LocalizationManager.swift */,
 				10962DDB2C978EF20031CEE7 /* Localizable.strings */,
 			);
 			path = AuthApp;
@@ -379,22 +472,37 @@
 				10C245E52CC848060078B6A0 /* BandView.swift in Sources */,
 				10730E0A2D2C1C7E00C0BDDA /* MainView.swift in Sources */,
 				108DEFB62D27270F00668F4A /* IntroView.swift in Sources */,
+				107553A32D302CC30034C450 /* KCALOutcome.swift in Sources */,
 				10BC0E632C6A98CD00BBEAC6 /* RegistrationView.swift in Sources */,
 				10962DE42C9791EB0031CEE7 /* LocalizationManager.swift in Sources */,
+				103910212D2F373200D158F6 /* ChangeTheme.swift in Sources */,
+				107553A12D302A450034C450 /* BMIOutcome.swift in Sources */,
+				103910232D2F3A1700D158F6 /* AppInformation.swift in Sources */,
+				100034602D2DD3F40007F296 /* BandInfoView.swift in Sources */,
 				10962DD12C94F3CC0031CEE7 /* ChangePasswordView.swift in Sources */,
 				10BC0E612C6A988F00BBEAC6 /* LoginView.swift in Sources */,
 				10BC0E372C6A95EB00BBEAC6 /* AuthAppApp.swift in Sources */,
+				1039101F2D2F2D8E00D158F6 /* ChangeProfilePicture.swift in Sources */,
 				10730E012D2A139B00C0BDDA /* MenuView.swift in Sources */,
+				107553A52D30392E0034C450 /* TrainingsView.swift in Sources */,
+				103910122D2EE18700D158F6 /* BMICalcView.swift in Sources */,
 				10EAB1CD2CD19DE0008F7B6F /* DatabaseManager.swift in Sources */,
 				108DEFBE2D273F2100668F4A /* TestView.swift in Sources */,
 				10C245E72CC848260078B6A0 /* DataView.swift in Sources */,
 				1000345E2D2D9E0F0007F296 /* SmartbandView.swift in Sources */,
 				10EF96BF2C84BF1E00F55A89 /* WelcomeView.swift in Sources */,
+				103910192D2F225C00D158F6 /* KCALCalcView.swift in Sources */,
+				103910252D2F3B9900D158F6 /* ContactUs.swift in Sources */,
 				10962DCF2C94F0200031CEE7 /* CustomResetCodeAlert.swift in Sources */,
+				1039100A2D2EBED500D158F6 /* BMIKCALCalc.swift in Sources */,
 				10B384BD2CCD48DD002A7F64 /* WebSocketManager.swift in Sources */,
+				107553A82D303B140034C450 /* SingleTraining.swift in Sources */,
 				102FB31E2CA5A5F6007A85E1 /* BLEManager.swift in Sources */,
 				10962DD32C978D1F0031CEE7 /* LanguageSelectionView.swift in Sources */,
+				100034622D2DF8C90007F296 /* ProfileView.swift in Sources */,
+				1039101D2D2F2B9400D158F6 /* ProfileDataUpdateView.swift in Sources */,
 				10C829982CE0F72C00453598 /* ProfileDataInputView.swift in Sources */,
+				102741482D2E012800C925CD /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

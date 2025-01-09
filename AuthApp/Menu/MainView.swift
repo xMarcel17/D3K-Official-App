@@ -175,7 +175,6 @@ struct MainView: View {
                         .frame(width: 165, height: 359)
                         
                         Button{
-                            
                         } label: {
                             ZStack{
                                 Rectangle()

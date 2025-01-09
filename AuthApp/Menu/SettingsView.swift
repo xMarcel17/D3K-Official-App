@@ -28,7 +28,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Change user data")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.leading)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -49,7 +49,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Change profile picture")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -70,7 +70,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Change password")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -91,7 +91,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Change language")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -112,7 +112,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Change theme")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -133,7 +133,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("App information")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)
@@ -154,7 +154,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack{
                                     Text("Contact us")
-                                        .font(Font.custom("RobotoMono-Bold", size: 16))
+                                        .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                         .frame(width: 235, alignment: .leading)

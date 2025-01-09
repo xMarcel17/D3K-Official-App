@@ -173,6 +173,7 @@ struct ProfileDataInputView: View {
                         .background(Color.white)
                         .cornerRadius(100)
                         .offset(y: 20)
+                        .shadow(radius: 10)
                 }
             }
             .padding()

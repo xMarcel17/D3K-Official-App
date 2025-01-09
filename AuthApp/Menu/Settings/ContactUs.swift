@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AppInformation: View {
+struct ContactUs: View {
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
 
@@ -53,52 +53,53 @@ struct AppInformation: View {
     }
 
     var contentView: some View {
-        VStack (spacing: 262){
-            VStack (spacing: -50){
-                Image("Logo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 350, height: 350)
-                    .clipped()
-                
-                VStack{
-                    Text("D3K Official App")
-                        .font(
-                            Font.custom("Roboto Mono", size: 32)
-                                .weight(.bold)
-                        )
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.white)
-                        .frame(width: 317, height: 41, alignment: .center)
-                    
-                    Text("version: 1.0")
-                        .font(
-                            Font.custom("Roboto Mono", size: 24)
-                                .weight(.bold)
-                        )
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.white)
-                        .frame(width: 207, height: 26, alignment: .center)
-                }
-
-            }
-            
-            Text("Created by:\nMarcel Radtke\nBartosz Rakowski")
+        VStack (spacing: 10){
+            Text("Contact")
                 .font(
-                    Font.custom("Roboto Mono", size: 20)
+                    Font.custom("Roboto Mono", size: 40)
                         .weight(.bold)
                 )
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
-                .frame(width: 211, height: 91, alignment: .center)
+            
+            Text("In case you have encountered any issues or bugs related to functionalities of our application, contact us via e-mail\n(click on the e-mail below) ")
+                .font(
+                    Font.custom("Roboto Mono", size: 20)
+                        .weight(.medium)
+                )
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
+                .frame(width: 341, height: 160, alignment: .center)
+            
+            HStack{
+                Image("Mail")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(width: 32, height: 32)
+                  .padding(.top, 4)
+                
+                Text("d3kapp.support@gmail.com")
+                  .font(
+                    Font.custom("Roboto Mono", size: 20)
+                      .weight(.bold)
+                  )
+                  .multilineTextAlignment(.center)
+                  .foregroundColor(.white)
+                  .frame(width: 304, height: 21, alignment: .center)
+                
+            }
+            .padding(.top, 30)
+    
         }
+        .padding(.bottom, 90)
+        .shadow(radius: 10)
     }
 
 }
 
-struct AppInformation_Previews: PreviewProvider {
+struct ContactUs_Previews: PreviewProvider {
     static var previews: some View {
-        AppInformation(
+        ContactUs(
         )
         .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
         .environmentObject(LocalizationManager())

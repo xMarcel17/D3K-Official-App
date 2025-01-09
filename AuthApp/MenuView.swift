@@ -25,19 +25,24 @@ struct MenuView: View {
                         Text("HOME")
                     }
                 
-                SmartbandView()
+                ContactUs()
                     .tabItem {
                         Image(systemName: "applewatch")
                         Text("BAND")
                     }
                 
-                DataView()
+                ProfileView(username: "TestBart",
+                            isLoggedIn: .constant(false),
+                            showWelcomeAlert: .constant(false),
+                            usernameField: .constant(""),
+                            passwordField: .constant(""),
+                            rememberMe: .constant(false))
                     .tabItem {
                         Image(systemName: "person.crop.circle.fill")
                         Text("PROFILE")
                     }
                 
-                TestView()
+                SettingsView()
                     .tabItem {
                         Image(systemName: "gearshape.fill")
                         Text("SETTINGS")

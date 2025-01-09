@@ -4,58 +4,164 @@ struct ChangePasswordView: View {
     let username: String
     @State private var resetCode = ""
     @State private var newPassword = ""
+    @State private var confirmPassword = "" // Pole na potwierdzenie hasła
     @State private var showResetCodeAlert = false
     @State private var newResetCode = ""
+    @State private var showMismatchAlert = false // Alert w przypadku różnicy haseł
     @Binding var isLoggedIn: Bool
 
     var body: some View {
+        ZStack{
+            backgroundView
+            
+            contenView
+            
+            // Custom back button in the top-left corner
+            HStack {
+                Button(action: {
+                    
+                }) {
+                    Image("DoubleLeftWhite")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 230, height: 40)
+                        .shadow(radius: 10)
+                }
+                Spacer() // Push content to the right
+            }
+            .padding(.horizontal)
+            .padding(20) // Adjust padding as needed
+            .padding(.top, -400) // Adjust padding as needed
+        }
+    }
+    
+    var backgroundView: some View {
+        ZStack {
+            // Gradientowe tło
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.75, green: 0.73, blue: 0.87),
+                    Color(red: 0.5, green: 0.63, blue: 0.83)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .edgesIgnoringSafeArea(.all)
+
+            // Tło RunningMan w trybie wyblakłym
+            Image("RunningMan")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 600, height: 600)
+                .offset(x: -35)
+        }
+    }
+    
+    var contenView: some View {
         VStack(spacing: 20) {
-            Text("Zmiana hasła dla \(username)")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Text("Password change \nfor \n\(username)")
+                .font(
+                Font.custom("Roboto Mono", size: 32)
+                .weight(.bold)
+                )
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
                 .padding()
+                .shadow(radius: 10)
             
-            TextField("Kod resetujący", text: $resetCode)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(5.0)
-                .autocapitalization(.none)
-            
-            SecureField("Nowe hasło", text: $newPassword)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(5.0)
-            
-            Button(action: {
-                changePassword()
-            }) {
-                Text("Zmień hasło")
-                    .font(.headline)
-                    .foregroundColor(.white)
+            Group{
+                ZStack(alignment: .leading) {
+                    if resetCode.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
+                        Text("Reset code")
+                            .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
+                            .font(.system(size: 16, weight: .light, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    TextField("", text: $resetCode)
                     .padding()
-                    .frame(width: 220, height: 60)
-                    .background(Color.green)
-                    .cornerRadius(15.0)
+                    .keyboardType(.numberPad)
+                }
+                
+                ZStack(alignment: .leading) {
+                    if newPassword.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
+                        Text("New password")
+                            .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
+                            .font(.system(size: 16, weight: .light, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    SecureField("", text: $newPassword)
+                    .padding()
+                }
+                
+                ZStack(alignment: .leading) {
+                    if confirmPassword.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
+                        Text("Repeat new password")
+                            .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
+                            .font(.system(size: 16, weight: .light, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    SecureField("", text: $confirmPassword)
+                    .padding()
+                }
+
+            }
+            .padding()
+            .foregroundColor(.white)
+            .font(.system(size: 16, weight: .semibold, design: .monospaced))
+            .autocapitalization(.none)
+            .background(.black.opacity(0.4))
+            .frame(maxWidth: 323, maxHeight: 60)
+            .disableAutocorrection(true)
+            .cornerRadius(100)
+
+            Button(action: {
+                if newPassword == confirmPassword {
+                    changePassword()
+                } else {
+                    showMismatchAlert = true
+                }
+            }) {
+                Text("Change password")
+                    .font(Font.custom("RobotoMono-Bold", size: 17))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                    .padding()
+                    .frame(width: 231, height: 58)
+                    .background(Color.white)
+                    .cornerRadius(100)
+                    .offset(y: 20)
+                    .shadow(radius: 10)
             }
         }
-        .padding()
+        .padding(.bottom, 100)
+        .onTapGesture {
+            dismissKeyboard()
+        }
         .overlay(
-            // Wyświetlamy niestandardowy alert w stylu `CustomResetCodeAlert`
             Group {
                 if showResetCodeAlert {
                     CustomResetCodeAlert(
                         resetCode: newResetCode,
                         onDismiss: {
-                            isLoggedIn = false // Wylogowanie po potwierdzeniu
-                            resetLoginData() // Reset danych logowania
+                            isLoggedIn = false
+                            resetLoginData()
                         },
                         customMessage: "Pomyślnie zmieniono hasło. Oto twój nowy kod do resetowania hasła. Zapisz go w bezpiecznym miejscu. Ta wiadomość wyświetlana jest jednorazowo. Po potwierdzeniu wyloguje cię z konta."
                     )
                 }
             }
         )
+        .alert(isPresented: $showMismatchAlert) {
+            Alert(title: Text("Błąd"),
+                  message: Text("Hasła nie są zgodne. Spróbuj ponownie."),
+                  dismissButton: .default(Text("OK")))
+        }
     }
 
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
     func changePassword() {
         guard let url = URL(string:"http://192.168.1.20:8000/auth/reset_password") else {
             print("Invalid URL")
@@ -90,7 +196,6 @@ struct ChangePasswordView: View {
                 
                 if httpResponse.statusCode == 200 {
                     DispatchQueue.main.async {
-                        // Pobierz nowy kod resetu hasła z odpowiedzi serwera
                         if let data = data,
                            let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                            let resetCode = json["password_reset_code"] as? String {
@@ -106,11 +211,20 @@ struct ChangePasswordView: View {
             }
         }.resume()
     }
-    
-    // Funkcja resetująca dane logowania
+
     func resetLoginData() {
-        // Tworzymy instancję LoginView i resetujemy dane
         let loginView = LoginView()
         loginView.resetLoginData()
+    }
+}
+
+struct ChangePasswordView_Previews: PreviewProvider {
+    @State static private var isLoggedIn = true
+
+    static var previews: some View {
+        ChangePasswordView(
+            username: "TestBart",
+            isLoggedIn: $isLoggedIn
+        )
     }
 }
