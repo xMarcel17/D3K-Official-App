@@ -7,7 +7,6 @@ struct BMIKCALCalc: View {
 
     @State private var showBMICalcView = false // Flaga do wyświetlania BMICalcView
     @State private var showKCALCalcView = false // Flaga do wyświetlania BMICalcView
-    
     var body: some View {
         ZStack {
             backgroundView

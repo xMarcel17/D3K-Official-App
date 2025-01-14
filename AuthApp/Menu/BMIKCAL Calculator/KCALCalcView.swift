@@ -13,8 +13,11 @@ struct KCALCalcView: View {
     @State private var isFemale = false
     @State private var showKCALoutput = false
     
-    @State private var selectedLevel = "Low"
-    let activityLevels = ["Low", "Medium", "High"]
+    @State private var selectedLevel = ""
+    let activityLevels = ["Very low (0-1 trainings/week)", "Low (2-3 trainings/week)",  "Medium (4-5 trainings/week)", "High (6-7 trainings/week)", "Very high (8+ trainings/week)"]
+    
+    @State private var kcal: Float = 0.0
+    @State private var calculatedKCAL: Int = 0 // Wynik KCAL do przekazania do KCALOutcome
     
     var body: some View {
         ZStack{
@@ -62,7 +65,7 @@ struct KCALCalcView: View {
     }
     
     var contentView: some View {
-        VStack (spacing: 35){
+        VStack{
             Text("Calories\nCalculator")
               .font(
                 Font.custom("Roboto Mono", size: 36)
@@ -262,36 +265,31 @@ struct KCALCalcView: View {
                 }
                 .padding(.top, 38)
                 .frame(width: 287, height: 96)
-                
-                
-                Picker("Activity level", selection: $selectedLevel) {
-                    ForEach(activityLevels, id: \.self) { level in
-                        Text(level)
-                            .tag(level)
-                    }
-                }
-                .frame(width: 130, height: 40) // Rozmiar ramki
-                .background(Color(red: 0.27, green: 0.43, blue: 0.69)) // Kolor tła
-                .cornerRadius(20) // Zaokrąglone rogi
-                .padding(.leading, 210)
-                .pickerStyle(.menu) // Styl rozwijanego menu
-                .frame(width: 327, height: 57) // Rozmiar ramki
-                .overlay(
+            
+                VStack (spacing: 5){
                     Text("Activity level") // Tekst wyświetlany
                         .font(
                             Font.custom("Roboto Mono", size: 20)
                                 .weight(.bold)
                         )
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69)) // Kolor tekstu
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 10),
-                    alignment: .leading
-                )
-                .padding(.top, 28)
-          
+                    
+                    Picker("Activity level", selection: $selectedLevel) {
+                        ForEach(activityLevels, id: \.self) { level in
+                            Text(level)
+                                .tag(level)
+                        }
+                    }
+                    .frame(width: 280, height: 40) // Rozmiar ramki
+                    .background(Color(red: 0.27, green: 0.43, blue: 0.69)) // Kolor tła
+                    .cornerRadius(20) // Zaokrąglone rogi
+                    .pickerStyle(.menu) // Styl rozwijanego menu
+
+                }
+                .padding(.top, 25)
 
                 Button(action: {
-                    showKCALoutput = true
+                    calculateKCAL()
                 }) {
                     Text("CALCULATE")
                         .font(Font.custom("RobotoMono-Bold", size: 24))
@@ -312,14 +310,14 @@ struct KCALCalcView: View {
                         .cornerRadius(50.0)
                         .shadow(radius: 5)
                 }
-                .padding(.top, 10)
+                .padding(.top, 5)
             }
     
         }
         .overlay(
             Group {
                 if showKCALoutput {
-                    KCALOutcome()
+                    KCALOutcome(kcal: calculatedKCAL)
                     .frame(width: 321, height: 292)
                     .background(Color.white)
                     .cornerRadius(40)
@@ -328,7 +326,35 @@ struct KCALCalcView: View {
                 }
             }
         )
+    }
+    
+    // Słownik mapujący poziomy aktywności na wskaźnik aktywności fizycznej
+    let activityFactors: [String: Float] = [
+        "Very low (0-1 trainings/week)": 1.3,
+        "Low (2-3 trainings/week)": 1.4,
+        "Medium (4-5 trainings/week)": 1.6,
+        "High (6-7 trainings/week)": 1.75,
+        "Very high (8+ trainings/week)": 2.0
+    ]
+    
+    func calculateKCAL() {
+        guard let weightValue = Float(weight),
+              let heightValue = Float(height),
+              let ageValue = Float(age),
+              (isMale || isFemale),
+              let activityFactor = activityFactors[selectedLevel] else {
+            print("Invalid input")
+            return
+        }
+     
+        if (isMale){
+            kcal = (66 + (13.7 * weightValue) + (5 * heightValue) - (6.8 * ageValue)) * activityFactor
+        } else{
+            kcal = (655 + (9.6 * weightValue) + (1.8 * heightValue) - (4.7 * ageValue)) * activityFactor
+        }
         
+        calculatedKCAL = Int(kcal)
+        showKCALoutput = true
     }
 }
 

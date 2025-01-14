@@ -7,10 +7,12 @@ struct SmartbandView: View {
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
 
+    @State private var selectTrainingType = false
     @State private var showBandInfoNotification = false
     @State private var showWifiFields = false
     @State private var wifiSSID = ""
     @State private var wifiPassword = ""
+    @State private var showAlert = false
 
     var body: some View {
         ZStack {
@@ -134,7 +136,7 @@ struct SmartbandView: View {
                         }
                         
                         Button(action: {
-                            sendJSONFile(workoutType: "Sprint")
+                            selectTrainingType = true
                         }) {
                             Text("Send data to server")
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
@@ -311,6 +313,24 @@ struct SmartbandView: View {
                             .cornerRadius(40)
                             .shadow(radius: 90)
                             .transition(.opacity)
+                            .environmentObject(BLEManager()) // Przykładowe środowisko BLEManager
+                            .environmentObject(WebSocketManager()) // Przykładowe środowisko WebSocketManager
+                        }
+                    }
+                )
+                .overlay(
+                    Group {
+                        if selectTrainingType {
+                            TrainingTypeView {
+                                selectTrainingType = false
+                            }
+                            .frame(width: 370, height: 320)
+                            .background(Color.white)
+                            .cornerRadius(40)
+                            .shadow(radius: 90)
+                            .transition(.opacity)
+                            .environmentObject(BLEManager()) // Przykładowe środowisko BLEManager
+                            .environmentObject(WebSocketManager()) // Przykładowe środowisko WebSocketManager
                         }
                     }
                 )
@@ -335,6 +355,19 @@ struct SmartbandView: View {
                     )
             }
             .padding(.top, 800)
+            .onReceive(webSocketManager.$showTrainingAlert) { show in
+                if show {
+                    showAlert = true
+                    webSocketManager.showTrainingAlert = false
+                }
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Training Processed"),
+                    message: Text("Training was processed successfully and you can find it in the Trainings section!"),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
         .background(.white)
 
@@ -343,71 +376,6 @@ struct SmartbandView: View {
     
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    func sendJSONFile(workoutType: String) {
-        let MET: [String: Double] = [
-            "Walking": 3.8,
-            "Jogging": 7.5,
-            "Running": 7.0,
-            "Sprint": 12.0,
-            "Hiking": 6.0,
-            "Tennis": 6.8,
-            "Football": 8.0,
-            "Basketball": 7.5,
-            "Volleyball": 4.0,
-            "LightExertion": 3.0,
-            "ModerateExertion": 5.0,
-            "IntenseExertion": 7.0
-        ]
-
-        guard MET[workoutType] != nil else {
-            print("Nieznany typ treningu: \(workoutType)")
-            return
-        }
-
-        guard let filePath = Bundle.main.path(forResource: "testDane", ofType: "json") else {
-            print("Nie znaleziono pliku JSON w zasobach projektu.")
-            return
-        }
-
-        guard let jsonText = try? String(contentsOfFile: filePath, encoding: .utf8) else {
-            print("Nie można załadować zawartości pliku JSON")
-            return
-        }
-
-        guard let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
-            print("Brak session-id w UserDefaults")
-            return
-        }
-
-        guard let url = URL(string: "http://192.168.1.20:8000/sensors/handle_sensor_data?workoutType=\(workoutType)") else {
-            print("Niepoprawny URL")
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(sessionId, forHTTPHeaderField: "session-id")
-        request.httpBody = jsonText.data(using: .utf8)
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Błąd podczas wysyłania danych: \(error)")
-                    return
-                }
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("Status kod serwera: \(httpResponse.statusCode)")
-                    if httpResponse.statusCode == 200 {
-                        print("Dane zostały pomyślnie wysłane na serwer.")
-                    } else {
-                        print("Błąd serwera: \(httpResponse.statusCode)")
-                    }
-                }
-            }
-        }.resume()
     }
 }
 

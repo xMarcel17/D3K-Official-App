@@ -5,6 +5,8 @@ struct KCALOutcome: View {
     @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
     @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
     
+    var kcal: Int // Zmienna do przechowywania przekazanej wartości
+    
     var body: some View {
 
         VStack(spacing: 20) {
@@ -20,7 +22,7 @@ struct KCALOutcome: View {
             
 
             VStack (spacing: 0){
-                Text("2747")
+                Text("\(kcal)")
                     .font(
                         Font.custom("Roboto Mono", size: 64)
                             .weight(.bold)
@@ -79,11 +81,11 @@ struct KCALOutcome: View {
     }
 }
 
-struct KCALOutcome_Previews: PreviewProvider {
-    static var previews: some View {
-        KCALOutcome(
-        )
-    }
-}
+//struct KCALOutcome_Previews: PreviewProvider {
+//    static var previews: some View {
+//        KCALOutcome(
+//        )
+//    }
+//}
 
 

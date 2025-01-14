@@ -2,15 +2,14 @@ import Foundation
 
 class WebSocketManager: ObservableObject {
     private var webSocketTask: URLSessionWebSocketTask?
+    @Published var showTrainingAlert = false
 
     func connect(withUserId userId: String, sessionId: String) {
-        // Tworzenie URL na podstawie userId
         guard let url = URL(string: "ws://192.168.1.20:8000/socket/connect/\(userId)") else {
             print("Invalid WebSocket URL")
             return
         }
 
-        // Używamy URL i przekazujemy subprotocoly
         webSocketTask = URLSession.shared.webSocketTask(with: url, protocols: ["session-id.\(sessionId)"])
         webSocketTask?.resume()
 
@@ -31,13 +30,19 @@ class WebSocketManager: ObservableObject {
                 print("WebSocket error: \(error)")
             case .success(.string(let message)):
                 print("Received message: \(message)")
+                self?.handleMessage(message)
             case .success:
                 break
             }
-            // Ponownie wywołujemy receiveMessages(), aby utrzymać nasłuchiwanie
             self?.receiveMessages()
         }
     }
+
+    private func handleMessage(_ message: String) {
+        if message.contains("Training") && message.contains("processed sucessfully") {
+            DispatchQueue.main.async {
+                self.showTrainingAlert = true
+            }
+        }
+    }
 }
-
-

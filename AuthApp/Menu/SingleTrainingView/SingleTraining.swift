@@ -1,6 +1,8 @@
 import SwiftUI
 
-struct SingleTrainingView: View {
+struct SingleTraining: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    
     var body: some View {
         ZStack{
             backgroundView
@@ -10,7 +12,7 @@ struct SingleTrainingView: View {
             // Custom back button in the top-left corner
             HStack {
                 Button(action: {
-                    
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                 }) {
                     Image("DoubleLeftWhite")
                         .resizable()
@@ -286,8 +288,8 @@ struct SingleTrainingView: View {
     }
 }
 
-struct SingleTrainingView_Previews: PreviewProvider {
+struct SingleTraining_Previews: PreviewProvider {
     static var previews: some View {
-        SingleTrainingView()
+        SingleTraining()
     }
 }

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct BandInfoView: View {
     @EnvironmentObject var bleManager: BLEManager
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    
     let onDismiss: () -> Void
 
     var body: some View {
@@ -102,6 +104,7 @@ struct BandInfoView_Previews: PreviewProvider {
         BandInfoView() {
             // Dismiss action
         }
-        .environmentObject(BLEManager())
+        .environmentObject(BLEManager()) // Przykładowe środowisko BLEManager
+        .environmentObject(WebSocketManager()) // Przykładowe środowisko WebSocketManager
     }
 }
