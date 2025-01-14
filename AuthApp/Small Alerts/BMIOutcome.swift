@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct BMIOutcome: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
+    
+    var bmi: Float // Zmienna do przechowywania przekazanej wartości
+    var status: String // Zmienna do przechowywania przekazanej wartości
+    
     var body: some View {
-
         VStack(spacing: 20) {
             
             Text("Your BMI is:")
@@ -15,7 +21,7 @@ struct BMIOutcome: View {
               .frame(width: 227, height: 25, alignment: .center)
             
 
-            Text("23.7")
+            Text(String(format: "%.2f", bmi))
               .font(
                 Font.custom("Roboto Mono", size: 78)
                   .weight(.bold)
@@ -28,24 +34,25 @@ struct BMIOutcome: View {
             HStack{
                 Text("Status:")
                   .font(
-                    Font.custom("Roboto Mono", size: 20)
+                    Font.custom("Roboto Mono", size: 18)
                       .weight(.bold)
                   )
                   .multilineTextAlignment(.center)
                   .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                 
-                Text("Normal")
+                Text(status)
                     .font(
-                      Font.custom("Roboto Mono", size: 20)
+                      Font.custom("Roboto Mono", size: 18)
                         .weight(.bold)
                     )
                     .multilineTextAlignment(.center)
-                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                    .foregroundColor(colorForStatus(status: status)) // Dynamiczny kolor
                 
             }
             .frame(width: 215, height: 44, alignment: .center)
             
             Button(action: {
+                presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
             }) {
                 ZStack{
                     Rectangle()
@@ -80,13 +87,29 @@ struct BMIOutcome: View {
         .background(Color(red: 1, green: 1, blue: 1))
         .padding()
     }
-}
-
-struct BMIOutcome_Previews: PreviewProvider {
-    static var previews: some View {
-        BMIOutcome(
-        )
+    
+    // Funkcja zwracająca odpowiedni kolor dla statusu BMI
+    func colorForStatus(status: String) -> Color {
+        switch status {
+        case "Normal":
+            return Color.green
+        case "Overweight":
+            return Color.orange
+        case "Obesity":
+            return Color.red
+        case "Underweight":
+            return Color.blue.opacity(0.7) // Jasny niebieski
+        default:
+            return Color.gray // Domyślny kolor, jeśli status jest nieznany
+        }
     }
 }
+
+//struct BMIOutcome_Previews: PreviewProvider {
+//    static var previews: some View {
+//        BMIOutcome(
+//        )
+//    }
+//}
 
 

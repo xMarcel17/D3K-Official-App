@@ -8,60 +8,37 @@ struct ProfileDataUpdateView: View {
     @State private var bmr: String = ""
     @State private var tdee: String = ""
     
-    // Przechowujemy userId i sessionId uzyskane po logowaniu/rejestracji
-    let userId: String
-    let sessionId: String
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
     
     @State private var showAlert = false
     @State private var alertMessage = ""
-
-    // Dodajemy bindowane właściwości przekazane z LoginView
-    @Binding var loggedInUsername: String?
-    @Binding var isLoggedIn: Bool
-    @Binding var showWelcomeAlert: Bool
-    @Binding var username: String
-    @Binding var password: String
-    @Binding var rememberMe: Bool
-
-    // Nowa zmienna do obsługi nawigacji
-    @State private var showWelcomeView = false
     
-    @EnvironmentObject var webSocketManager: WebSocketManager
-    @EnvironmentObject var languageManager: LocalizationManager
+    @State private var showSuccessAlert = false // Dodanie zmiennej stanu dla alertu
 
     var body: some View {
-        if showWelcomeView {
-            MenuView(   //WelcomeView
-                username: loggedInUsername ?? "",
-                isLoggedIn: $isLoggedIn,
-                showWelcomeAlert: $showWelcomeAlert,
-                usernameField: $username,
-                passwordField: $password,
-                rememberMe: $rememberMe
-            )
-        } else {
-            ZStack {
-                backgroundView
-                
-                contentView
-                
-                // Custom back button in the top-left corner
-                HStack {
-                    Button(action: {
-                        
-                    }) {
-                        Image("DoubleLeftWhite")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 230, height: 40)
-                            .shadow(radius: 10)
-                    }
-                    Spacer() // Push content to the right
+        ZStack {
+            backgroundView
+            
+            contentView
+            
+            // Custom back button in the top-left corner
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
+                }) {
+                    Image("DoubleLeftWhite")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 230, height: 40)
+                        .shadow(radius: 10)
                 }
-                .padding(.horizontal)
-                .padding(20) // Adjust padding as needed
-                .padding(.top, -400) // Adjust padding as needed
+                Spacer() // Push content to the right
             }
+            .padding(.horizontal)
+            .padding(20) // Adjust padding as needed
+            .padding(.top, -400) // Adjust padding as needed
         }
     }
     
@@ -180,7 +157,7 @@ struct ProfileDataUpdateView: View {
                 
 
                 Button(action: {
-                    sendDataToServer()
+                    updateDataToServer()
                 }) {
                     Text("Potwierdź dane")
                         .font(Font.custom("RobotoMono-Bold", size: 17))
@@ -198,53 +175,70 @@ struct ProfileDataUpdateView: View {
             .onTapGesture {
                 dismissKeyboard()
             }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Błąd"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
         }
+        .alert(isPresented: $showSuccessAlert) {
+            Alert(
+                title: Text("Sukces!"),
+                message: Text("Dane zostały pomyślnie zaktualizowane."),
+                dismissButton: .default(Text("OK")) {
+                    presentationMode.wrappedValue.dismiss() // Zamknięcie widoku po zatwierdzeniu
+                }
+            )
+        }
+
     }
     
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
-    private func sendDataToServer() {
-        guard !gender.isEmpty,
-                  !age.isEmpty, Int(age) != nil,
-                  !weight.isEmpty, Int(weight) != nil,
-                  !height.isEmpty, Int(height) != nil,
-                  !bmr.isEmpty, Int(bmr) != nil,
-                  !tdee.isEmpty, Int(tdee) != nil else {
-                alertMessage = "Wszystkie pola muszą być poprawnie wypełnione."
-                showAlert = true
-                return
-            }
+    private func updateDataToServer() {
+        // Pobranie user_id i session_id z UserDefaults
+        guard let userId = UserDefaults.standard.string(forKey: "user_id"),
+              let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
+            print("Brak wymaganych danych (user_id lub session_id) w UserDefaults")
+            return
+        }
         
-        guard let url = URL(string: "http://192.168.1.20:8000/health/users") else {
+        // Walidacja danych wejściowych
+        guard !gender.isEmpty,
+              !age.isEmpty, Int(age) != nil,
+              !weight.isEmpty, Int(weight) != nil,
+              !height.isEmpty, Int(height) != nil,
+              !bmr.isEmpty, Int(bmr) != nil,
+              !tdee.isEmpty, Int(tdee) != nil else {
+            alertMessage = "Wszystkie pola muszą być poprawnie wypełnione."
+            showAlert = true
+            return
+        }
+        
+        // Budowanie URL z query (user_id)
+        var urlComponents = URLComponents(string: "http://192.168.1.20:8000/health/users")
+        urlComponents?.queryItems = [URLQueryItem(name: "userId", value: userId)]
+        
+        guard let url = urlComponents?.url else {
             print("Nieprawidłowy URL")
             return
         }
-
+        
         // Przygotowanie ciała żądania z danymi użytkownika
         let body: [String: Any] = [
-            "userId": userId,
-            "gender": gender,
-            "age": Int(age) ?? 0,
-            "weight": Int(weight) ?? 0,
-            "height": Int(height) ?? 0,
-            "bmr": Int(bmr) ?? 0,
-            "tdee": Int(tdee) ?? 0
+            "user": [
+                "userId": userId,
+                "gender": gender,
+                "age": Int(age) ?? 0,
+                "weight": Int(weight) ?? 0,
+                "height": Int(height) ?? 0,
+                "bmr": Int(bmr) ?? 0,
+                "tdee": Int(tdee) ?? 0
+            ]
         ]
-
+        
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = "PUT" // Zmiana metody na PUT
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(sessionId, forHTTPHeaderField: "session-id")
-
+        request.setValue(sessionId, forHTTPHeaderField: "session-id") // Dodanie session_id do nagłówka
+        
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
@@ -255,50 +249,54 @@ struct ProfileDataUpdateView: View {
             print("Błąd przy kodowaniu danych: \(error.localizedDescription)")
             return
         }
-
+        
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Błąd przy wysyłaniu danych: \(error.localizedDescription)")
                 return
             }
-
+            
             if let httpResponse = response as? HTTPURLResponse {
                 print("Odpowiedź serwera, kod statusu: \(httpResponse.statusCode)")
-
-                if httpResponse.statusCode == 201 || httpResponse.statusCode == 200 {
-                    print("Dane zostały pomyślnie przesłane.")
+                
+                if httpResponse.statusCode == 200 {
+                    print("Dane zostały pomyślnie zaktualizowane.")
                     
-                    // Przejdź do WelcomeView po pomyślnym wysłaniu danych
                     DispatchQueue.main.async {
-                        self.showWelcomeView = true
+                        // Wyświetlenie alertu po sukcesie
+                        self.showSuccessAlert = true
                     }
                 } else {
-                    print("Wystąpił błąd przy przesyłaniu danych, kod: \(httpResponse.statusCode)")
+                    print("Wystąpił błąd przy aktualizacji danych, kod: \(httpResponse.statusCode)")
                 }
             }
-
+            
             if let data = data,
                let responseString = String(data: data, encoding: .utf8) {
                 print("Odpowiedź serwera: \(responseString)")
             }
         }.resume()
     }
+
+
+
+
 }
 
-struct ProfilDataUpdateView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileDataUpdateView(
-            userId: .StringLiteralType(""),
-            sessionId: .StringLiteralType(""),
-            loggedInUsername: .constant(nil),
-            isLoggedIn: .constant(false),
-            showWelcomeAlert: .constant(false),
-            username: .constant(""),
-            password: .constant(""),
-            rememberMe: .constant(false)
-        )
-        .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
-        .environmentObject(LocalizationManager())
-    }
-}
+//struct ProfilDataUpdateView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ProfileDataUpdateView(
+//            userId: .StringLiteralType(""),
+//            sessionId: .StringLiteralType(""),
+//            loggedInUsername: .constant(nil),
+//            isLoggedIn: .constant(false),
+//            showWelcomeAlert: .constant(false),
+//            username: .constant(""),
+//            password: .constant(""),
+//            rememberMe: .constant(false)
+//        )
+//        .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
+//        .environmentObject(LocalizationManager())
+//    }
+//}
 

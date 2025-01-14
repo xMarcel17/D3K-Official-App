@@ -2,18 +2,18 @@ import SwiftUI
 
 struct MainView: View {
     var username: String
-    @Binding var isLoggedIn: Bool
-    @Binding var showWelcomeAlert: Bool
-    @Binding var usernameField: String
-    @Binding var passwordField: String
-    @Binding var rememberMe: Bool
-    @EnvironmentObject var bleManager: BLEManager // Pobieramy BLEManager z EnvironmentObject
+    
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
+
+    @State private var showBMIKCALCalc = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showTrainings = false // Zmienna kontrolująca pełnoekranowe przejście
     
     var body: some View {
         ZStack {
-            ZStack{
-                VStack (spacing: 15){
-                    ZStack{
+            ZStack {
+                VStack(spacing: 15) {
+                    ZStack {
                         Rectangle()
                             .foregroundColor(.clear)
                             .frame(width: 343, height: 78)
@@ -38,10 +38,10 @@ struct MainView: View {
                     }
                     .frame(width: 343, height: 78)
                     
-                    Button{
-                        
+                    Button {
+                        showTrainings = true
                     } label: {
-                        ZStack{
+                        ZStack {
                             Rectangle()
                                 .foregroundColor(.clear)
                                 .frame(width: 343, height: 211)
@@ -63,7 +63,6 @@ struct MainView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .padding(.bottom, 40)
                                 .opacity(0.3)
-                                
                             
                             Image("RunningManSmall")
                                 .resizable()
@@ -81,13 +80,12 @@ struct MainView: View {
                         .frame(width: 343, height: 211)
                     }
                     
-                    
-                    HStack (spacing: 15){
-                        VStack (spacing: 15){
-                            Button{
-                                
+                    HStack(spacing: 15) {
+                        VStack(spacing: 15) {
+                            Button {
+                                // Dodaj logikę przejścia tutaj, jeśli potrzebujesz
                             } label: {
-                                ZStack{
+                                ZStack {
                                     Rectangle()
                                         .foregroundColor(.clear)
                                         .frame(width: 165, height: 172)
@@ -128,10 +126,10 @@ struct MainView: View {
                                 .frame(width: 165, height: 172)
                             }
                             
-                            Button{
-                                
+                            Button {
+                                // Dodaj logikę przejścia tutaj, jeśli potrzebujesz
                             } label: {
-                                ZStack{
+                                ZStack {
                                     Rectangle()
                                         .foregroundColor(.clear)
                                         .frame(width: 165, height: 172)
@@ -174,9 +172,10 @@ struct MainView: View {
                         }
                         .frame(width: 165, height: 359)
                         
-                        Button{
+                        Button {
+                            showBMIKCALCalc = true // Aktywacja pełnoekranowego przejścia
                         } label: {
-                            ZStack{
+                            ZStack {
                                 Rectangle()
                                     .foregroundColor(.clear)
                                     .frame(width: 163, height: 359)
@@ -220,46 +219,57 @@ struct MainView: View {
                             }
                             .frame(width: 163, height: 359)
                         }
+                        .fullScreenCover(isPresented: $showBMIKCALCalc) {
+                            BMIKCALCalc()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
+                        .fullScreenCover(isPresented: $showTrainings) {
+                            TrainingsView()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                     }
                     .frame(width: 343, height: 359)
                 }
-            }
-            .padding(.bottom, 10)
-            
-            ZStack{
-                Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: abs(500), height: abs(100))
-                    .background(
-                        LinearGradient(
-                            stops: [
-                                Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                            ],
-                            startPoint: UnitPoint(x: 0.5, y: 0),
-                            endPoint: UnitPoint(x: 0.5, y: 1)
-                        )
+                .padding(.bottom, 10)
+                
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.clear)
                         .frame(width: abs(500), height: abs(100))
-                        .shadow(radius: 5)
-                    )
+                        .background(
+                            LinearGradient(
+                                stops: [
+                                    Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
+                                    Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
+                                ],
+                                startPoint: UnitPoint(x: 0.5, y: 0),
+                                endPoint: UnitPoint(x: 0.5, y: 1)
+                            )
+                            .frame(width: abs(500), height: abs(100))
+                            .shadow(radius: 5)
+                        )
+                }
+                .padding(.top, 800)
             }
-            .padding(.top, 800)
+            .background(.white)
         }
-        .background(.white)
     }
 }
 
-struct MainView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainView(
-            username: "TestUser",                     // Przykładowa nazwa użytkownika
-            isLoggedIn: .constant(true),              // Ustawienie przykładowej wartości Binding
-            showWelcomeAlert: .constant(false),       // Binding dla alertu
-            usernameField: .constant("TestUser"),     // Binding dla pola nazwy użytkownika
-            passwordField: .constant("password123"),  // Binding dla pola hasła
-            rememberMe: .constant(true)              // Binding dla przełącznika "zapamiętaj mnie",
-        )
-        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
-    }
-}
+
+//struct MainView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MainView(
+//            username: "TestUser",                     // Przykładowa nazwa użytkownika
+//            isLoggedIn: .constant(true),              // Ustawienie przykładowej wartości Binding
+//            showWelcomeAlert: .constant(false),       // Binding dla alertu
+//            usernameField: .constant("TestUser"),     // Binding dla pola nazwy użytkownika
+//            passwordField: .constant("password123"),  // Binding dla pola hasła
+//            rememberMe: .constant(true)              // Binding dla przełącznika "zapamiętaj mnie",
+//        )
+//        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
+//        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
+//    }
+//}

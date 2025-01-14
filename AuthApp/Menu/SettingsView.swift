@@ -1,7 +1,21 @@
 import SwiftUI
 
 struct SettingsView: View {
-
+    
+    var username: String
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
+    
+    @State private var showChangeUserData = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showChangeProfilePicture = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showChangePassword = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showChangeLanguage = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showChangeTheme = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showAppInformation = false // Zmienna kontrolująca pełnoekranowe przejście
+    @State private var showContactUs = false // Zmienna kontrolująca pełnoekranowe przejście
+    
+    @Binding var isLoggedIn: Bool
+    
     var body: some View {
         ZStack {
             ZStack{
@@ -24,7 +38,7 @@ struct SettingsView: View {
                     VStack(spacing: 27){
                         VStack{
                             Button{
-                                
+                                showChangeUserData = true
                             } label: {
                                 HStack{
                                     Text("Change user data")
@@ -42,10 +56,15 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showChangeUserData) {
+                            ProfileDataUpdateView()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showChangeProfilePicture = true
                             } label: {
                                 HStack{
                                     Text("Change profile picture")
@@ -63,10 +82,15 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showChangeProfilePicture) {
+                            ChangeProfilePicture()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showChangePassword = true
                             } label: {
                                 HStack{
                                     Text("Change password")
@@ -84,10 +108,18 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showChangePassword) {
+                            ChangePasswordView(
+                                username: username,
+                                isLoggedIn: $isLoggedIn
+                            )
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showChangeLanguage = true
                             } label: {
                                 HStack{
                                     Text("Change language")
@@ -105,10 +137,15 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showChangeLanguage) {
+                            LanguageSelectionView()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showChangeTheme = true
                             } label: {
                                 HStack{
                                     Text("Change theme")
@@ -126,10 +163,15 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showChangeTheme) {
+                            ChangeTheme()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showAppInformation = true
                             } label: {
                                 HStack{
                                     Text("App information")
@@ -147,10 +189,15 @@ struct SettingsView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
                         }
+                        .fullScreenCover(isPresented: $showAppInformation) {
+                            AppInformation()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
+                        }
                         
                         VStack{
                             Button{
-                                
+                                showContactUs = true
                             } label: {
                                 HStack{
                                     Text("Contact us")
@@ -168,6 +215,11 @@ struct SettingsView: View {
                             Rectangle()
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                               .frame(width: 301, height: 1)
+                        }
+                        .fullScreenCover(isPresented: $showContactUs) {
+                            ContactUs()
+                                .environmentObject(webSocketManager)
+                                .environmentObject(languageManager)
                         }
                     }
                 }
@@ -200,11 +252,11 @@ struct SettingsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView(
-        )
-        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
-    }
-}
+//struct SettingsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SettingsView(
+//        )
+//        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
+//        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
+//    }
+//}

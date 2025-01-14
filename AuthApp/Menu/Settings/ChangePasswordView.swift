@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ChangePasswordView: View {
-    let username: String
+    var username: String
     @State private var resetCode = ""
     @State private var newPassword = ""
     @State private var confirmPassword = "" // Pole na potwierdzenie hasła
@@ -9,6 +9,10 @@ struct ChangePasswordView: View {
     @State private var newResetCode = ""
     @State private var showMismatchAlert = false // Alert w przypadku różnicy haseł
     @Binding var isLoggedIn: Bool
+    
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
 
     var body: some View {
         ZStack{
@@ -19,7 +23,7 @@ struct ChangePasswordView: View {
             // Custom back button in the top-left corner
             HStack {
                 Button(action: {
-                    
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                 }) {
                     Image("DoubleLeftWhite")
                         .resizable()
@@ -146,8 +150,14 @@ struct ChangePasswordView: View {
                             isLoggedIn = false
                             resetLoginData()
                         },
-                        customMessage: "Pomyślnie zmieniono hasło. Oto twój nowy kod do resetowania hasła. Zapisz go w bezpiecznym miejscu. Ta wiadomość wyświetlana jest jednorazowo. Po potwierdzeniu wyloguje cię z konta."
+                        customMessage: "You have managed to succesfully change your password. Save the code in a safe place. This message is displayed once."
                     )
+                    .frame(width: 325, height: 392)
+                    .background(Color.white)
+                    .cornerRadius(40)
+                    .shadow(radius: 90)
+                    .transition(.opacity)
+                    .padding(.bottom, 150)
                 }
             }
         )

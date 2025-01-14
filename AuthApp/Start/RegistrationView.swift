@@ -331,7 +331,7 @@ struct RegistrationView: View {
     
     func verifyUser() {
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
-              let url = URL(string: "http://192.168.1.20:8000/health/users?userId=\(userId)") else {
+              let url = URL(string: "http://192.168.1.20:8000/health/users/?userId=\(userId)") else {
             print("Invalid URL or userId not available")
             return
         }

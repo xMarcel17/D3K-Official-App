@@ -18,7 +18,7 @@ struct AuthAppApp: App {
                     }
             } else {
                 NavigationView {
-                    LoginView()
+                    LoginView() 
                         .environmentObject(localizationManager)
                         .environmentObject(bleManager) // Przekazujemy BLEManager do środowiska
                         .environmentObject(webSocketManager)

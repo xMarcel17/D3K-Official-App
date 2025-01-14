@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct KCALOutcome: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
+    
     var body: some View {
 
         VStack(spacing: 20) {
@@ -37,6 +41,7 @@ struct KCALOutcome: View {
             }
             
             Button(action: {
+                presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
             }) {
                 ZStack{
                     Rectangle()

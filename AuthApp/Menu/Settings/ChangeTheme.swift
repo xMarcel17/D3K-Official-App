@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct ChangeTheme: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
-
+    
     var body: some View {
 
             ZStack {
@@ -14,7 +15,7 @@ struct ChangeTheme: View {
                 // Custom back button in the top-left corner
                 HStack {
                     Button(action: {
-                        
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }) {
                         Image("DoubleLeftWhite")
                             .resizable()

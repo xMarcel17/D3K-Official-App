@@ -1,14 +1,25 @@
 import SwiftUI
+import UIKit
+
+extension UIApplication {
+    func hideKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
 
 struct BMICalcView: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
     
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var weight = ""
     @State private var height = ""
     @State private var age = ""
-    @State private var isMale = false
-    @State private var isFemale = false
     @State private var showBMIoutput = false
+    
+    @State private var calculatedBMI: Float = 0.0 // Wynik PPM do przekazania do BMIOutcome
+    @State private var status = " " // Obliczony status
+        
     
     var body: some View {
         ZStack{
@@ -19,7 +30,7 @@ struct BMICalcView: View {
             // Custom back button in the top-left corner
             HStack {
                 Button(action: {
-                    
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                 }) {
                     Image("DoubleLeftBlue")
                         .resizable()
@@ -46,11 +57,13 @@ struct BMICalcView: View {
                     .scaledToFit()
                     .frame(width: 333, height: 175)
                     .opacity(0.37)
-                    .padding(.bottom, 400)
+                    .padding(.bottom, 280)
             }
             .frame(width: 600, height: 600)
         }
-        
+        .onTapGesture {
+            UIApplication.shared.hideKeyboard() // Ukrycie klawiatury po kliknięciu w tło
+        }
     }
     
     var contentView: some View {
@@ -84,7 +97,6 @@ struct BMICalcView: View {
                                 .cornerRadius(20)
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                 .autocapitalization(.none)
-                                .keyboardType(.default)
                                 .multilineTextAlignment(.center)
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
@@ -117,7 +129,6 @@ struct BMICalcView: View {
                                 .cornerRadius(20)
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                                 .autocapitalization(.none)
-                                .keyboardType(.default)
                                 .multilineTextAlignment(.center)
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
@@ -151,7 +162,6 @@ struct BMICalcView: View {
                             .cornerRadius(20)
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             .autocapitalization(.none)
-                            .keyboardType(.default)
                             .multilineTextAlignment(.center)
                             .font(.system(size: 36, weight: .semibold, design: .monospaced))
                             .shadow(radius: 5)
@@ -165,99 +175,9 @@ struct BMICalcView: View {
                 }
                 .frame(width: 145, height: 106)
                 
-                ZStack{
-                    Rectangle()
-                      .foregroundColor(.clear)
-                      .frame(width: 287, height: 96)
-                      .background(Color(red: 0.87, green: 0.85, blue: 0.89))
-                      .cornerRadius(20)
-                      .shadow(radius: 5)
-                    
-                    Rectangle()
-                      .foregroundColor(.clear)
-                      .frame(width: 3, height: 96)
-                      .background(Color(red: 0.27, green: 0.43, blue: 0.69))
-                    
-                    HStack{
-                        ZStack{
-                            Button(action: {
-                                isMale = true
-                                isFemale = false
-                            }) {
-                                VStack{
-                                    Image("Male")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 38, height: 38)
-                                    
-                                    Text("Male")
-                                      .font(
-                                        Font.custom("Roboto Mono", size: 20)
-                                          .weight(.bold)
-                                      )
-                                      .multilineTextAlignment(.center)
-                                      .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                                      .frame(width: 50, height: 15, alignment: .center)
-                                }
-                                .frame(width: 142, height: 96)
-                            }
-                            
-                        }
-                        .frame(width: 142, height: 96)
-                        
-                        ZStack{
-                            Button(action: {
-                                isMale = false
-                                isFemale = true
-                            }) {
-                                VStack{
-                                    Image("Female")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 38, height: 38)
-                                    
-                                    Text("Female")
-                                      .font(
-                                        Font.custom("Roboto Mono", size: 20)
-                                          .weight(.bold)
-                                      )
-                                      .multilineTextAlignment(.center)
-                                      .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                                      .frame(width: 74, height: 15, alignment: .center)
-                                    
-                                }
-                                .frame(width: 142, height: 96)
-                                
-                            }
-                        }
-                        .frame(width: 142, height: 96)
-                        
-                    }
-                    .frame(width: 287, height: 96)
-                    
-                    if isFemale {
-                        Image("Check")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 35, height: 35)
-                            .padding(.leading, 240)
-                            .padding(.bottom, 50)
-                    }
-                    else if isMale {
-                        Image("Check")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 35, height: 35)
-                            .padding(.trailing, 240)
-                            .padding(.bottom, 50)
-                    }
-                }
-                .padding(.top, 38)
-                .frame(width: 287, height: 96)
-                
                 
                 Button(action: {
-                    showBMIoutput = true
+                    calculateBMI()
                 }) {
                     Text("CALCULATE")
                         .font(Font.custom("RobotoMono-Bold", size: 24))
@@ -285,7 +205,7 @@ struct BMICalcView: View {
         .overlay(
             Group {
                 if showBMIoutput {
-                    BMIOutcome()
+                    BMIOutcome(bmi: calculatedBMI, status: status)
                     .frame(width: 321, height: 292)
                     .background(Color.white)
                     .cornerRadius(40)
@@ -294,7 +214,56 @@ struct BMICalcView: View {
                 }
             }
         )
+    }
+    
+    // Funkcja obliczająca PPM
+    func calculateBMI() {
+        guard let weightValue = Float(weight),
+              let heightValue = Float(height),
+              let ageValue = Float(age) else {
+            print("Invalid input")
+            return
+        }
         
+        let heightValueInMeters = heightValue / 100
+        calculatedBMI = weightValue / (heightValueInMeters * heightValueInMeters)
+        
+        // Określenie przedziału normalnego BMI w zależności od wieku
+        let normalRange: ClosedRange<Float>
+        
+        switch ageValue {
+        case 19...24:
+            normalRange = 19.0...24.0
+        case 25...34:
+            normalRange = 20.0...25.0
+        case 35...44:
+            normalRange = 21.0...26.0
+        case 45...54:
+            normalRange = 22.0...27.0
+        case 55...64:
+            normalRange = 23.0...28.0
+        default: // 65 lat i więcej
+            normalRange = 24.0...29.0
+        }
+        
+        // Możesz zapisać skrajne wartości przedziału jako osobne zmienne
+        let lowerBound = normalRange.lowerBound
+        let upperBound = normalRange.upperBound
+        
+        if (calculatedBMI < lowerBound){
+            status = "Underweight"
+        }
+        else if ((calculatedBMI > lowerBound) && (calculatedBMI < upperBound)){
+            status = "Normal"
+        }
+        else if (calculatedBMI > upperBound) && (calculatedBMI < 31){
+            status = "Overweight"
+        }
+        else{
+            status = "Obesity"
+        }
+            
+        showBMIoutput = true
     }
 }
 

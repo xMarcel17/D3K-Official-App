@@ -2,104 +2,167 @@ import SwiftUI
 
 struct ProfileView: View {
     var username: String
+    
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
+    
     @Binding var isLoggedIn: Bool
     @Binding var showWelcomeAlert: Bool
     @Binding var usernameField: String
     @Binding var passwordField: String
     @Binding var rememberMe: Bool
-    @EnvironmentObject var bleManager: BLEManager // Pobieramy BLEManager z EnvironmentObject
-    
+
+    // Dodane zmienne @State do przechowywania danych użytkownika
+    @State private var gender: String = "Loading..."
+    @State private var age: String = "Loading..."
+    @State private var weight: String = "Loading..."
+    @State private var height: String = "Loading..."
+    @State private var bmr: String = "Loading..."
+    @State private var tdee: String = "Loading..."
+    @State private var isLoading = true
+
     var body: some View {
         ZStack {
-            ZStack{
-                VStack (spacing: 20){
+            // Duży ZStack (niezmieniony)
+            ZStack {
+                VStack(spacing: 20) {
                     Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: 209, height: 209)
-                    .background(
-                    Image("lamiine")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 209, height: 209)
-                    .clipped()
-                    )
-                    .cornerRadius(209)
+                        .foregroundColor(.clear)
+                        .frame(width: 209, height: 209)
+                        .background(
+                            Image("lamiine")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 209, height: 209)
+                                .clipped()
+                        )
+                        .cornerRadius(209)
                     
                     Text(username)
-                      .font(
-                        Font.custom("Roboto Mono", size: 40)
-                          .weight(.bold)
-                      )
-                      .multilineTextAlignment(.center)
-                      .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                      .frame(width: 500, height: 38, alignment: .center)
+                        .font(
+                            Font.custom("Roboto Mono", size: 40)
+                                .weight(.bold)
+                        )
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                        .frame(width: 500, height: 38, alignment: .center)
                     
-
                     Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: 321, height: 4)
-                    .background(Color(red: 0.27, green: 0.43, blue: 0.69))
-                    .cornerRadius(50)
-                    .shadow(radius: 5)
+                        .foregroundColor(.clear)
+                        .frame(width: 321, height: 4)
+                        .background(Color(red: 0.27, green: 0.43, blue: 0.69))
+                        .cornerRadius(50)
+                        .shadow(radius: 5)
                     
-                    VStack (alignment: .leading, spacing: 10){
-                        Text("Gender:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                    HStack (spacing: 125){
+                        VStack (alignment: .leading, spacing: 10){
+                            Text("Gender:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            
+                            Text("Age:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            
+                            Text("Weight:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                 
+                            
+                            Text("Height:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                             
+                            
+                            Text("BMR:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                              
+                            
+                            Text("TDEE:")
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                        }
                         
                         
-                        Text("Age:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                        
-                        
-                        Text("Weight:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-             
-                        
-                        Text("Height:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                         
-                        
-                        Text("BMR:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                          
-                        
-                        Text("TDEE:")
-                          .font(
-                            Font.custom("Roboto Mono", size: 24)
-                              .weight(.bold)
-                          )
-                          .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                        
+                        VStack (alignment: .trailing, spacing: 10){
+                            Text(gender)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            
+                            Text(age)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            
+                            Text(weight)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                 
+                            
+                            Text(height)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                             
+                            
+                            Text(bmr)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                              
+                            
+                            Text(tdee)
+                              .font(
+                                Font.custom("Roboto Mono", size: 24)
+                                  .weight(.bold)
+                              )
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                        }
                     }
-                    .padding(.trailing, 180)
-                   
-                    Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: 321, height: 4)
-                    .background(Color(red: 0.27, green: 0.43, blue: 0.69))
-                    .cornerRadius(50)
-                    .shadow(radius: 5)
                     
+                    Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 321, height: 4)
+                        .background(Color(red: 0.27, green: 0.43, blue: 0.69))
+                        .cornerRadius(50)
+                        .shadow(radius: 5)
                     
                     Button(action: {
                         logout()
@@ -124,14 +187,12 @@ struct ProfileView: View {
                             .shadow(radius: 5)
                     }
                     .padding(.top, 8)
-                    
                 }
                 .padding(.bottom, 10)
-                
             }
             .padding(.bottom, 10)
             
-            ZStack{
+            ZStack {
                 Rectangle()
                     .foregroundColor(.clear)
                     .frame(width: abs(500), height: abs(100))
@@ -150,8 +211,68 @@ struct ProfileView: View {
             }
             .padding(.top, 800)
         }
+        .onAppear {
+            fetchUserData()
+        }
         .background(.white)
     }
+
+    func fetchUserData() {
+        guard let userId = UserDefaults.standard.string(forKey: "user_id"),
+              let sessionId = UserDefaults.standard.string(forKey: "session_id"),
+              let url = URL(string: "http://192.168.1.20:8000/health/users/?userId=\(userId)") else {
+            print("Invalid userId or sessionId")
+            return
+        }
+
+        // Logowanie wartości userId i sessionId
+        print("Fetching user data with the following details:")
+        print("User ID: \(userId)")
+        print("Session ID: \(sessionId)")
+        print("Request URL: \(url)")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(sessionId, forHTTPHeaderField: "session-id") // Dodanie wymaganego nagłówka
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error fetching user data: \(error.localizedDescription)")
+                return
+            }
+
+            if let response = response as? HTTPURLResponse {
+                print("HTTP Status Code: \(response.statusCode)")
+                if response.statusCode != 200 {
+                    print("Unexpected response code: \(response.statusCode)")
+                    return
+                }
+            }
+
+            if let data = data {
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                       let userData = json["user"] as? [String: Any] {
+                        DispatchQueue.main.async {
+                            self.gender = userData["gender"] as? String ?? "N/A"
+                            self.age = String(userData["age"] as? Int ?? 0)
+                            self.weight = String(userData["weight"] as? Int ?? 0)
+                            self.height = String(userData["height"] as? Int ?? 0)
+                            self.bmr = String(userData["bmr"] as? Int ?? 0)
+                            self.tdee = String(userData["tdee"] as? Int ?? 0)
+                            self.isLoading = false
+                        }
+                    } else {
+                        print("Failed to parse 'user' key in JSON response.")
+                    }
+                } catch {
+                    print("JSON decoding error: \(error.localizedDescription)")
+                }
+            }
+        }.resume()
+    }
+
     
     func logout() {
         // Sprawdzenie, czy mamy zapisany session_id
@@ -204,19 +325,5 @@ struct ProfileView: View {
         UserDefaults.standard.removeObject(forKey: "user_id")
 
         print("Session ID and User ID cleared, Remember Me unchecked.")
-    }
-}
-
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView(username: "TestBart",
-                    isLoggedIn: .constant(false),
-                    showWelcomeAlert: .constant(false),
-                    usernameField: .constant(""),
-                    passwordField: .constant(""),
-                    rememberMe: .constant(false)
-        )
-        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
     }
 }

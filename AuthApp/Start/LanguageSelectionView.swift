@@ -2,7 +2,8 @@ import SwiftUI
 
 struct LanguageSelectionView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
-    var onLanguageSelected: () -> Void // Domknięcie do obsługi powrotu
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager
 
     var body: some View {
         NavigationView {
@@ -12,7 +13,7 @@ struct LanguageSelectionView: View {
                 
                 HStack {
                     Button(action: {
-                        onLanguageSelected() // Powrót do LoginView
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }) {
                         Image("DoubleLeftWhite")
                             .resizable()
@@ -36,22 +37,22 @@ struct LanguageSelectionView: View {
                     
                     CustomButton(title: "Polski", imageName: "Polish") {
                         localizationManager.currentLanguage = "pl"
-                        onLanguageSelected()
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }
                     
                     CustomButton(title: "English", imageName: "English") {
                         localizationManager.currentLanguage = "en"
-                        onLanguageSelected()
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }
                     
                     CustomButton(title: "Deutsch", imageName: "German") {
                         localizationManager.currentLanguage = "de"
-                        onLanguageSelected()
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }
                     
                     CustomButton(title: "Español", imageName: "Spanish") {
                         localizationManager.currentLanguage = "es"
-                        onLanguageSelected()
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }
                 }
             }
@@ -117,9 +118,7 @@ struct CustomButton: View {
 
 struct LanguageSelectionView_Previews: PreviewProvider {
     static var previews: some View {
-        LanguageSelectionView(onLanguageSelected: {
-            print("Returning to LoginView")
-        })
+        LanguageSelectionView()
         .environmentObject(LocalizationManager())
     }
 }

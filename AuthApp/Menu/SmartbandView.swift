@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct SmartbandView: View {
+    var username: String
+    
     @EnvironmentObject var bleManager: BLEManager
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
+
     @State private var showBandInfoNotification = false
     @State private var showWifiFields = false
     @State private var wifiSSID = ""
@@ -427,9 +432,10 @@ struct InfoRow: View {
 
 struct SmartbandView_Previews: PreviewProvider {
     static var previews: some View {
-        SmartbandView(
-        )
-        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
+        SmartbandView(username: "TestUser") // Przykładowy username
+            .environmentObject(BLEManager()) // Przykładowe środowisko BLEManager
+            .environmentObject(WebSocketManager()) // Przykładowe środowisko WebSocketManager
+            .environmentObject(LocalizationManager()) // Przykładowe środowisko LocalizationManager
+            .preferredColorScheme(.light) // Opcjonalnie tryb jasny
     }
 }

@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct TrainingsView: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
+    
     var body: some View {
         ZStack{
             backgroundView
@@ -10,7 +14,7 @@ struct TrainingsView: View {
             // Custom back button in the top-left corner
             HStack {
                 Button(action: {
-                    
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                 }) {
                     Image("DoubleLeftBlue")
                         .resizable()

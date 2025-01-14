@@ -1,52 +1,69 @@
 import SwiftUI
 
 struct MenuView: View {
-    var username: String
+    var username: String // Zmienna jako wartość, a nie Binding
+
+    @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var bleManager: BLEManager
+    @EnvironmentObject var languageManager: LocalizationManager
+
     @Binding var isLoggedIn: Bool
     @Binding var showWelcomeAlert: Bool
     @Binding var usernameField: String
     @Binding var passwordField: String
     @Binding var rememberMe: Bool
-    @EnvironmentObject var bleManager: BLEManager // Pobieramy BLEManager z EnvironmentObject
-    
+
     var body: some View {
-        ZStack {
-            // TabView
-            TabView {
-                MainView(username: "TestUser",                     // Przykładowa nazwa użytkownika
-                     isLoggedIn: .constant(true),              // Ustawienie przykładowej wartości Binding
-                     showWelcomeAlert: .constant(false),       // Binding dla alertu
-                     usernameField: .constant("TestUser"),     // Binding dla pola nazwy użytkownika
-                     passwordField: .constant("password123"),  // Binding dla pola hasła
-                     rememberMe: .constant(true))
-                    .environmentObject(BLEManager())
-                    .tabItem {
-                        Image(systemName: "house.fill")
-                        Text("HOME")
-                    }
-                
-                ContactUs()
-                    .tabItem {
-                        Image(systemName: "applewatch")
-                        Text("BAND")
-                    }
-                
-                ProfileView(username: "TestBart",
-                            isLoggedIn: .constant(false),
-                            showWelcomeAlert: .constant(false),
-                            usernameField: .constant(""),
-                            passwordField: .constant(""),
-                            rememberMe: .constant(false))
-                    .tabItem {
-                        Image(systemName: "person.crop.circle.fill")
-                        Text("PROFILE")
-                    }
-                
-                SettingsView()
-                    .tabItem {
-                        Image(systemName: "gearshape.fill")
-                        Text("SETTINGS")
-                    }
+        TabView {
+            // MainView
+            MainView(
+                username: username
+            )
+            .environmentObject(webSocketManager)
+            .environmentObject(languageManager)
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("HOME")
+            }
+
+            // SmartbandView
+            SmartbandView(
+                username: username
+            )
+            .environmentObject(bleManager)
+            .environmentObject(webSocketManager)
+            .environmentObject(languageManager)
+            .tabItem {
+                Image(systemName: "applewatch")
+                Text("BAND")
+            }
+
+            // ProfileView
+            ProfileView(
+                username: username,
+                isLoggedIn: $isLoggedIn,
+                showWelcomeAlert: $showWelcomeAlert,
+                usernameField: $usernameField,
+                passwordField: $passwordField,
+                rememberMe: $rememberMe
+            )
+            .environmentObject(webSocketManager)
+            .environmentObject(languageManager)
+            .tabItem {
+                Image(systemName: "person.crop.circle.fill")
+                Text("PROFILE")
+            }
+
+            // SettingsView
+            SettingsView(
+                username: username,
+                isLoggedIn: $isLoggedIn
+            )
+            .environmentObject(webSocketManager)
+            .environmentObject(languageManager)
+            .tabItem {
+                Image(systemName: "gearshape.fill")
+                Text("SETTINGS")
             }
         }
         .alert(isPresented: $showWelcomeAlert) {
@@ -57,29 +74,32 @@ struct MenuView: View {
             )
         }
         .onAppear {
-               // Wymuszenie trybu jasnego na wypadek braku zadziałania w `init`
-               if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                   for window in windowScene.windows {
-                       window.overrideUserInterfaceStyle = .light
-                   }
-               }
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                for window in windowScene.windows {
+                    window.overrideUserInterfaceStyle = .light
+                }
+            }
         }
     }
-
 }
+
+
 
 
 struct MenuView_Previews: PreviewProvider {
     static var previews: some View {
         MenuView(
-            username: "TestUser",                     // Przykładowa nazwa użytkownika
-            isLoggedIn: .constant(true),              // Ustawienie przykładowej wartości Binding
-            showWelcomeAlert: .constant(false),       // Binding dla alertu
-            usernameField: .constant("TestUser"),     // Binding dla pola nazwy użytkownika
-            passwordField: .constant("password123"),  // Binding dla pola hasła
-            rememberMe: .constant(true)              // Binding dla przełącznika "zapamiętaj mnie",
+            username: "TestUser", // Przykładowe dane dla Binding
+            isLoggedIn: .constant(true),
+            showWelcomeAlert: .constant(false),
+            usernameField: .constant("TestUser"),
+            passwordField: .constant("password123"),
+            rememberMe: .constant(true)
         )
-        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
+        .environmentObject(BLEManager())
+        .environmentObject(WebSocketManager())
+        .environmentObject(LocalizationManager())
+        .preferredColorScheme(.light)
     }
 }
+

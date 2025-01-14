@@ -69,10 +69,8 @@ struct LoginView: View {
                 print("WebSocketManager in LoginView: \(webSocketManager)")
             }
             .fullScreenCover(isPresented: $showLanguageSelection) {
-                LanguageSelectionView {
-                    showLanguageSelection = false // Zamknij widok po wybraniu języka
-                }
-                .environmentObject(languageManager)
+                LanguageSelectionView()
+                    .environmentObject(languageManager)
             }
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

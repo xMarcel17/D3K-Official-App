@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContactUs: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
 
@@ -14,7 +15,7 @@ struct ContactUs: View {
                 // Custom back button in the top-left corner
                 HStack {
                     Button(action: {
-                        
+                        presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                     }) {
                         Image("DoubleLeftWhite")
                             .resizable()

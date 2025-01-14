@@ -1,8 +1,11 @@
 import SwiftUI
+import UIKit
 
 struct KCALCalcView: View {
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
     
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var weight = ""
     @State private var height = ""
     @State private var age = ""
@@ -22,7 +25,7 @@ struct KCALCalcView: View {
             // Custom back button in the top-left corner
             HStack {
                 Button(action: {
-                    
+                    presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
                 }) {
                     Image("DoubleLeftBlue")
                         .resizable()
@@ -53,7 +56,9 @@ struct KCALCalcView: View {
             }
             .frame(width: 600, height: 600)
         }
-        
+        .onTapGesture {
+            UIApplication.shared.hideKeyboard() // Ukrycie klawiatury po kliknięciu w tło
+        }
     }
     
     var contentView: some View {
