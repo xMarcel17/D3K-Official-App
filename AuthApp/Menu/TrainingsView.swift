@@ -5,12 +5,13 @@ struct TrainingsView: View {
     @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
     @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
     
-    @State private var workouts: [(type: String, date: String)] = []
+    @State private var workouts: [(id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)] = []
     @State private var currentPage: Int = 1
     @State private var limitPerPage: Int = 10
     @State private var isLastPage: Bool = false
     
-    @State private var selectedWorkout: (type: String, date: String)? = nil
+    @State private var selectedWorkout: (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)? = nil
+    
     @State private var isShowingSingleTraining: Bool = false
     
     var body: some View {
@@ -40,7 +41,7 @@ struct TrainingsView: View {
             fetchWorkoutData()
         }
         .fullScreenCover(isPresented: $isShowingSingleTraining) {
-                SingleTraining()
+            SingleTraining(workout: selectedWorkout ?? defaultWorkout)
                     .environmentObject(webSocketManager)
                     .environmentObject(languageManager)
         }
@@ -61,7 +62,7 @@ struct TrainingsView: View {
     }
     
     var contentView: some View {
-        VStack(spacing: 20) {
+        ZStack{
             Text("Trainings")
                 .font(
                     Font.custom("Roboto Mono", size: 36)
@@ -70,46 +71,68 @@ struct TrainingsView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                 .frame(width: 251, height: 107, alignment: .center)
-
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(workouts.indices, id: \ .self) { index in
-                    Button(action: {
-                        handleWorkoutTap(index: index)
-                    }) {
-                        VStack(alignment: .leading) {
-                            Text(workouts[index].type)
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            Text(workouts[index].date)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+            
+            VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(workouts.indices, id: \ .self) { index in
+                        Button(action: {
+                            handleWorkoutTap(index: index)
+                        }) {
+                            HStack{
+                                Text(workouts[index].type)
+                                    .font(
+                                        Font.custom("Roboto Mono", size: 16)
+                                            .weight(.regular)
+                                    )
+                                    .frame(width: 170, alignment: .leading)
+                                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                                Text(formatDate(workouts[index].date))
+                                    .font(
+                                        Font.custom("Roboto Mono", size: 16)
+                                            .weight(.regular)
+                                    )
+                                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            }
+                            .padding(.leading, 10)
+                        }
+                        Rectangle()
+                            .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            .frame(width: 301, height: 1)
+                    }
+                }
+                
+                HStack {
+                    Button("Previous") {
+                        if currentPage > 1 {
+                            currentPage -= 1
+                            fetchWorkoutData()
                         }
                     }
-                }
-            }
-            
-            HStack {
-                Button("Previous") {
-                    if currentPage > 1 {
-                        currentPage -= 1
+                    .disabled(currentPage == 1)
+                    .font(
+                        Font.custom("Roboto Mono", size: 18)
+                            .weight(.bold)
+                    )
+                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                    .disabled(currentPage == 1)
+                    
+                    Spacer()
+                    
+                    Button("Next") {
+                        currentPage += 1
                         fetchWorkoutData()
                     }
+                    .disabled(isLastPage)
+                    .font(
+                        Font.custom("Roboto Mono", size: 18)
+                            .weight(.bold)
+                    )
+                    .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                 }
-                .disabled(currentPage == 1)
-                .foregroundColor(Color.black)
-
-                Spacer()
-
-                Button("Next") {
-                    currentPage += 1
-                    fetchWorkoutData()
-                }
-                .disabled(isLastPage)
-                .foregroundColor(Color.black)
+                .padding()
             }
-            .padding()
+            .frame(width: 300)
         }
-        .frame(width: 300)
     }
     
     func fetchWorkoutData() {
@@ -139,12 +162,18 @@ struct TrainingsView: View {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let workoutsArray = json["workouts"] as? [[String: Any]] {
 
-                    let parsedWorkouts = workoutsArray.compactMap { workout -> (type: String, date: String)? in
-                        guard let type = workout["workoutType"] as? String,
+                    let parsedWorkouts = workoutsArray.compactMap { workout -> (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)? in
+                        guard let id = workout["id"] as? Int,
+                              let type = workout["workoutType"] as? String,
+                              let duration = workout["duration"] as? Int,
+                              let distance = workout["distance"] as? Double,
+                              let caloriesBurned = workout["caloriesBurned"] as? Double,
+                              let avgSteps = workout["avgSteps"] as? Int,
+                              let avgHeartrate = workout["avgHeartrate"] as? Double,
                               let date = workout["date"] as? String else {
                             return nil
                         }
-                        return (type, date)
+                        return (id, type, duration, distance, caloriesBurned, avgSteps, avgHeartrate, date)
                     }
 
                     DispatchQueue.main.async {
@@ -162,6 +191,26 @@ struct TrainingsView: View {
         selectedWorkout = workouts[index]
         isShowingSingleTraining = true
         print("Workout tapped: \(workouts[index])")
+    }
+    
+    func formatDate(_ date: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX") // Ustawienie odpowiedniej lokalizacji
+        inputFormatter.dateFormat = "EEE MMM dd yyyy HH:mm:ss 'GMT'Z (zzzz)" // Format wejściowy odpowiadający danym z serwera
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "dd/MM/yyyy" // Format wyjściowy
+        
+        if let dateObject = inputFormatter.date(from: date) {
+            return outputFormatter.string(from: dateObject)
+        }
+        return date // Zwraca oryginalną datę, jeśli konwersja się nie powiedzie
+    }
+
+
+    
+    private var defaultWorkout: (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String) {
+        return (id: 0, type: "Unknown", duration: 0, distance: 0.0, caloriesBurned: 0.0, avgSteps: 0, avgHeartrate: 0.0, date: "Unknown")
     }
 }
 

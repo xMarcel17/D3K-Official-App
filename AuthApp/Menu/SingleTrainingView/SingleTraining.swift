@@ -1,7 +1,14 @@
 import SwiftUI
 
 struct SingleTraining: View {
+    let workout: (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)
+    
     @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
+    @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
+    
+    @State private var showSpeedGraph = false
+    @State private var showHeartrateGraph = false
     
     var body: some View {
         ZStack{
@@ -51,7 +58,7 @@ struct SingleTraining: View {
     var contentView: some View {
         VStack (spacing: 29){
             VStack (spacing: 12){
-                Text("Running_03")
+                Text(workout.type)
                     .font(
                         Font.custom("Roboto Mono", size: 36)
                             .weight(.bold)
@@ -84,7 +91,7 @@ struct SingleTraining: View {
             
             VStack(spacing: 29){
                 Button(action: {
-
+                    showSpeedGraph = true
                 }) {
                     ZStack{
                         Image("RunningManTraining")
@@ -120,7 +127,7 @@ struct SingleTraining: View {
 
                 
                 Button(action: {
-
+                    showHeartrateGraph = true
                 }) {
                     ZStack{
                         Image("HeartrateTraining")
@@ -285,11 +292,14 @@ struct SingleTraining: View {
             }
         }
         .padding(.top, 40)
+        .fullScreenCover(isPresented: $showSpeedGraph) {
+            SpeedGraph()
+        }
     }
 }
 
 struct SingleTraining_Previews: PreviewProvider {
     static var previews: some View {
-        SingleTraining()
+        SingleTraining(workout: (id: 1, type: "Running", duration: 3600, distance: 10.5, caloriesBurned: 500, avgSteps: 12000, avgHeartrate: 150, date: "2025-01-14"))
     }
 }
