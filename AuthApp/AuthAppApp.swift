@@ -3,9 +3,9 @@ import SwiftUI
 @main
 struct AuthAppApp: App {
     @StateObject private var localizationManager = LocalizationManager.shared
-    @StateObject private var bleManager = BLEManager() // Jedna instancja BLEManager dla całej aplikacji
-    @StateObject private var webSocketManager = WebSocketManager() // Dodajemy WebSocket Manager
-    @State private var showIntro = true // Flaga sterująca wyświetlaniem IntroView
+    @StateObject private var bleManager = BLEManager() // Instancja BLEManager
+    @StateObject private var webSocketManager = WebSocketManager() // // Instancja WebSocketManager
+    @State private var showIntro = true // Flaga sterująca wyświetlaniem IntroView (Splash Screen)
     
     var body: some Scene {
         WindowGroup {
@@ -20,7 +20,7 @@ struct AuthAppApp: App {
                 NavigationView {
                     LoginView() 
                         .environmentObject(localizationManager)
-                        .environmentObject(bleManager) // Przekazujemy BLEManager do środowiska
+                        .environmentObject(bleManager)
                         .environmentObject(webSocketManager)
                 }
             }

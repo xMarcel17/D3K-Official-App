@@ -12,7 +12,7 @@ struct TrainingsView: View {
     
     @State private var selectedWorkout: (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)? = nil
     
-    @State private var isShowingSingleTraining: Bool = false
+    @State private var isShowingSingleTraining = false
     
     var body: some View {
         ZStack{
@@ -71,6 +71,7 @@ struct TrainingsView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                 .frame(width: 251, height: 107, alignment: .center)
+                .padding(.bottom, 660)
             
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 20) {
@@ -132,6 +133,7 @@ struct TrainingsView: View {
                 .padding()
             }
             .frame(width: 300)
+            .padding(.top, 110)
         }
     }
     

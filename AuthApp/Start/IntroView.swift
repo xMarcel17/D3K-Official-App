@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-struct IntroView: View {
+struct IntroView: View {    
     @State private var isAnimationComplete = false
 
     var body: some View {
@@ -32,14 +32,6 @@ struct IntroView: View {
                         .clipped() // Ograniczenie widocznego obszaru
                         .padding(.bottom, 50) // Opcjonalny margines
                 }
-            }
-
-            // Nawigacja do LoginView po zakończeniu animacji
-            if isAnimationComplete {
-                NavigationView {
-                    LoginView()
-                }
-                .transition(.opacity)
             }
         }
     }

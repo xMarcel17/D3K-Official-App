@@ -13,6 +13,7 @@
 		102741482D2E012800C925CD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102741472D2E012600C925CD /* SettingsView.swift */; };
 		102B49B72D2C807A002056F4 /* testDane.json in Resources */ = {isa = PBXBuildFile; fileRef = 102B49B62D2C807A002056F4 /* testDane.json */; };
 		102FB31E2CA5A5F6007A85E1 /* BLEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102FB31D2CA5A5F6007A85E1 /* BLEManager.swift */; };
+		103268292D380259008D9907 /* HeartrateGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103268282D380252008D9907 /* HeartrateGraph.swift */; };
 		1039100A2D2EBED500D158F6 /* BMIKCALCalc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */; };
 		103910122D2EE18700D158F6 /* BMICalcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910112D2EE18100D158F6 /* BMICalcView.swift */; };
 		103910192D2F225C00D158F6 /* KCALCalcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103910182D2F225800D158F6 /* KCALCalcView.swift */; };
@@ -34,7 +35,6 @@
 		10813EB32D27784A00002705 /* RobotoMono-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10813EB12D27784A00002705 /* RobotoMono-VariableFont_wght.ttf */; };
 		10813EB42D27784A00002705 /* RobotoMono-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10813EB12D27784A00002705 /* RobotoMono-VariableFont_wght.ttf */; };
 		108DEFB62D27270F00668F4A /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108DEFB52D27270900668F4A /* IntroView.swift */; };
-		108DEFBE2D273F2100668F4A /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108DEFBD2D273F2100668F4A /* TestView.swift */; };
 		10962DCF2C94F0200031CEE7 /* CustomResetCodeAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10962DCE2C94F0200031CEE7 /* CustomResetCodeAlert.swift */; };
 		10962DD12C94F3CC0031CEE7 /* ChangePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10962DD02C94F3CC0031CEE7 /* ChangePasswordView.swift */; };
 		10962DD32C978D1F0031CEE7 /* LanguageSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10962DD22C978D1F0031CEE7 /* LanguageSelectionView.swift */; };
@@ -49,17 +49,17 @@
 		10BC0E542C6A95EC00BBEAC6 /* AuthAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BC0E532C6A95EC00BBEAC6 /* AuthAppUITestsLaunchTests.swift */; };
 		10BC0E612C6A988F00BBEAC6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BC0E602C6A988F00BBEAC6 /* LoginView.swift */; };
 		10BC0E632C6A98CD00BBEAC6 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BC0E622C6A98CD00BBEAC6 /* RegistrationView.swift */; };
-		10C245E52CC848060078B6A0 /* BandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C245E42CC848060078B6A0 /* BandView.swift */; };
-		10C245E72CC848260078B6A0 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C245E62CC848260078B6A0 /* DataView.swift */; };
 		10C829982CE0F72C00453598 /* ProfileDataInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C829972CE0F72C00453598 /* ProfileDataInputView.swift */; };
 		10CF5C572D36E26100A7372C /* TrainingTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CF5C562D36E25D00A7372C /* TrainingTypeView.swift */; };
 		10CF5C5B2D37149000A7372C /* TrainingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CF5C5A2D37149000A7372C /* TrainingsView.swift */; };
 		10CF5C5C2D37149000A7372C /* TrainingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CF5C5A2D37149000A7372C /* TrainingsView.swift */; };
 		10CF5C5D2D37149000A7372C /* TrainingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CF5C5A2D37149000A7372C /* TrainingsView.swift */; };
 		10CF5C5F2D3723F800A7372C /* SpeedGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CF5C5E2D3723DB00A7372C /* SpeedGraph.swift */; };
+		10D305D12D3753DC002658ED /* testDane2.json in Resources */ = {isa = PBXBuildFile; fileRef = 10D305D02D3753DC002658ED /* testDane2.json */; };
+		10D305D22D3753DC002658ED /* testDane2.json in Resources */ = {isa = PBXBuildFile; fileRef = 10D305D02D3753DC002658ED /* testDane2.json */; };
+		10D305D32D3753DC002658ED /* testDane2.json in Resources */ = {isa = PBXBuildFile; fileRef = 10D305D02D3753DC002658ED /* testDane2.json */; };
 		10EAB1C72CD17EC1008F7B6F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 10EAB1C62CD17EC1008F7B6F /* SQLite */; };
 		10EAB1CD2CD19DE0008F7B6F /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10EAB1CC2CD19DE0008F7B6F /* DatabaseManager.swift */; };
-		10EF96BF2C84BF1E00F55A89 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10EF96BE2C84BF1E00F55A89 /* WelcomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +86,7 @@
 		102741472D2E012600C925CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		102B49B62D2C807A002056F4 /* testDane.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testDane.json; sourceTree = "<group>"; };
 		102FB31D2CA5A5F6007A85E1 /* BLEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEManager.swift; sourceTree = "<group>"; };
+		103268282D380252008D9907 /* HeartrateGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartrateGraph.swift; sourceTree = "<group>"; };
 		103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIKCALCalc.swift; sourceTree = "<group>"; };
 		103910112D2EE18100D158F6 /* BMICalcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMICalcView.swift; sourceTree = "<group>"; };
 		103910182D2F225800D158F6 /* KCALCalcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KCALCalcView.swift; sourceTree = "<group>"; };
@@ -102,7 +103,6 @@
 		10813E952D2750C100002705 /* LogoGif.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = LogoGif.gif; sourceTree = "<group>"; };
 		10813EB12D27784A00002705 /* RobotoMono-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		108DEFB52D27270900668F4A /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
-		108DEFBD2D273F2100668F4A /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
 		10962DC52C8F46140031CEE7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		10962DCE2C94F0200031CEE7 /* CustomResetCodeAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomResetCodeAlert.swift; sourceTree = "<group>"; };
 		10962DD02C94F3CC0031CEE7 /* ChangePasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordView.swift; sourceTree = "<group>"; };
@@ -124,14 +124,12 @@
 		10BC0E532C6A95EC00BBEAC6 /* AuthAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		10BC0E602C6A988F00BBEAC6 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		10BC0E622C6A98CD00BBEAC6 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
-		10C245E42CC848060078B6A0 /* BandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandView.swift; sourceTree = "<group>"; };
-		10C245E62CC848260078B6A0 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		10C829972CE0F72C00453598 /* ProfileDataInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDataInputView.swift; sourceTree = "<group>"; };
 		10CF5C562D36E25D00A7372C /* TrainingTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingTypeView.swift; sourceTree = "<group>"; };
 		10CF5C5A2D37149000A7372C /* TrainingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingsView.swift; sourceTree = "<group>"; };
 		10CF5C5E2D3723DB00A7372C /* SpeedGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedGraph.swift; sourceTree = "<group>"; };
+		10D305D02D3753DC002658ED /* testDane2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testDane2.json; sourceTree = "<group>"; };
 		10EAB1CC2CD19DE0008F7B6F /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
-		10EF96BE2C84BF1E00F55A89 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,8 +243,9 @@
 		107553A62D3039D60034C450 /* SingleTrainingView */ = {
 			isa = PBXGroup;
 			children = (
-				107553A72D303B0E0034C450 /* SingleTraining.swift */,
+				103268282D380252008D9907 /* HeartrateGraph.swift */,
 				10CF5C5E2D3723DB00A7372C /* SpeedGraph.swift */,
+				107553A72D303B0E0034C450 /* SingleTraining.swift */,
 			);
 			path = SingleTrainingView;
 			sourceTree = "<group>";
@@ -289,11 +288,8 @@
 				1039100E2D2EBFC300D158F6 /* Small Alerts */,
 				10730E082D2C12CC00C0BDDA /* Managers */,
 				10962DC52C8F46140031CEE7 /* Info.plist */,
+				10D305D02D3753DC002658ED /* testDane2.json */,
 				102B49B62D2C807A002056F4 /* testDane.json */,
-				108DEFBD2D273F2100668F4A /* TestView.swift */,
-				10EF96BE2C84BF1E00F55A89 /* WelcomeView.swift */,
-				10C245E42CC848060078B6A0 /* BandView.swift */,
-				10C245E62CC848260078B6A0 /* DataView.swift */,
 				10BC0E3A2C6A95EC00BBEAC6 /* Assets.xcassets */,
 				10813EA32D27761400002705 /* Font */,
 				104DE64F2D285CF2003E2398 /* Gif */,
@@ -449,6 +445,7 @@
 				102B49B72D2C807A002056F4 /* testDane.json in Resources */,
 				10BC0E3B2C6A95EC00BBEAC6 /* Assets.xcassets in Resources */,
 				10813EB42D27784A00002705 /* RobotoMono-VariableFont_wght.ttf in Resources */,
+				10D305D22D3753DC002658ED /* testDane2.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,6 +454,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				10813E992D2750C100002705 /* LogoGif.gif in Resources */,
+				10D305D12D3753DC002658ED /* testDane2.json in Resources */,
 				10813EB32D27784A00002705 /* RobotoMono-VariableFont_wght.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,6 +464,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				10813E9B2D2750C100002705 /* LogoGif.gif in Resources */,
+				10D305D32D3753DC002658ED /* testDane2.json in Resources */,
 				10813EB22D27784A00002705 /* RobotoMono-VariableFont_wght.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -477,7 +476,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10C245E52CC848060078B6A0 /* BandView.swift in Sources */,
+				103268292D380259008D9907 /* HeartrateGraph.swift in Sources */,
 				10730E0A2D2C1C7E00C0BDDA /* MainView.swift in Sources */,
 				10CF5C5D2D37149000A7372C /* TrainingsView.swift in Sources */,
 				10CF5C572D36E26100A7372C /* TrainingTypeView.swift in Sources */,
@@ -497,10 +496,7 @@
 				10730E012D2A139B00C0BDDA /* MenuView.swift in Sources */,
 				103910122D2EE18700D158F6 /* BMICalcView.swift in Sources */,
 				10EAB1CD2CD19DE0008F7B6F /* DatabaseManager.swift in Sources */,
-				108DEFBE2D273F2100668F4A /* TestView.swift in Sources */,
-				10C245E72CC848260078B6A0 /* DataView.swift in Sources */,
 				1000345E2D2D9E0F0007F296 /* SmartbandView.swift in Sources */,
-				10EF96BF2C84BF1E00F55A89 /* WelcomeView.swift in Sources */,
 				103910192D2F225C00D158F6 /* KCALCalcView.swift in Sources */,
 				103910252D2F3B9900D158F6 /* ContactUs.swift in Sources */,
 				10962DCF2C94F0200031CEE7 /* CustomResetCodeAlert.swift in Sources */,

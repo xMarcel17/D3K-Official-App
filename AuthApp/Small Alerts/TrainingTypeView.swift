@@ -83,7 +83,7 @@ struct TrainingTypeView: View {
             return
         }
 
-        guard let filePath = Bundle.main.path(forResource: "testDane", ofType: "json") else {
+        guard let filePath = Bundle.main.path(forResource: "testDane2", ofType: "json") else {
             print("Nie znaleziono pliku JSON w zasobach projektu.")
             return
         }

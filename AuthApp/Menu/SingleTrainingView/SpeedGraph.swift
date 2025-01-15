@@ -6,7 +6,7 @@ struct SpeedGraph: View {
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
     
-    @State private var graphData: [GraphPoint] = [] // Dane do grafu
+    @State private var graphData: [SpeedPoint] = [] // Dane do grafu
     
     var body: some View {
         ZStack {
@@ -93,11 +93,17 @@ struct SpeedGraph: View {
                     Chart(graphData) { point in
                         LineMark(
                             x: .value("Time", point.time),
-                            y: .value("BPM", point.bpm) // "BPM" jako opis osi Y
+                            y: .value("Speed", point.speed)
                         )
-                        .foregroundStyle(Color.red)
+                        .foregroundStyle(Color.blue) // Kolor linii
+                        
+//                        PointMark(
+//                            x: .value("Time", point.time),
+//                            y: .value("Speed", point.speed)
+//                        )
+//                        .foregroundStyle(Color.green) // Kolor punktów
                     }
-
+                    .frame(height: 300)
                 }
             }
             .frame(width: 325, height: 582)
@@ -115,7 +121,7 @@ struct SpeedGraph: View {
             return
         }
         
-        let urlString = "http://192.168.1.20:8000/sensors/get_graph?user_id=\(userId)&date=2024-12-01T12:34:56Z&graph_type=heartrate"
+        let urlString = "http://192.168.1.20:8000/sensors/get_graph?user_id=\(userId)&date=2025-12-01T12:34:56Z&graph_type=speed"
         guard let url = URL(string: urlString) else { return }
         
         var request = URLRequest(url: url)
@@ -146,18 +152,18 @@ struct SpeedGraph: View {
 }
 
 // Struktury danych
-struct GraphPoint: Identifiable, Codable {
+struct SpeedPoint: Identifiable, Codable {
     let id = UUID() // Lokalnie generowane ID
-    let time: Double
-    let bpm: Double
+    let time: Int
+    let speed: Double
     
     private enum CodingKeys: String, CodingKey {
-        case time, bpm
+        case time, speed
     }
 }
 
 struct GraphResponse: Codable {
-    let graph_data: [GraphPoint]
+    let graph_data: [SpeedPoint]
 }
 
 struct SpeedGraph_Previews: PreviewProvider {

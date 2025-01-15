@@ -60,13 +60,14 @@ struct SingleTraining: View {
             VStack (spacing: 12){
                 Text(workout.type)
                     .font(
-                        Font.custom("Roboto Mono", size: 36)
+                        Font.custom("Roboto Mono", size: 30)
                             .weight(.bold)
                     )
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
-                    .frame(width: 219, height: 35, alignment: .center)
+                    .frame(width: 320, height: 35, alignment: .leading)
                     .shadow(radius: 10)
+                    .padding(.trailing, 10)
                 
                 HStack{
                     Image("Calendar")
@@ -74,19 +75,19 @@ struct SingleTraining: View {
                       .scaledToFit()
                       .frame(width: 20, height: 20)
                     
-                    Text("MON, 09/12/2024")
+                    Text(formatDate(workout.date))
                       .font(
                         Font.custom("Roboto Mono", size: 18)
                           .weight(.bold)
                       )
                       .multilineTextAlignment(.center)
                       .foregroundColor(.white)
-                      .frame(width: 177, height: 20, alignment: .center)
+                      .frame(width: 300, height: 20, alignment: .leading)
                 }
                 .shadow(radius: 10)
             }
-            .frame(width: 219, height: 65)
-            .padding(.trailing, 110)
+            .frame(width: 320, height: 65)
+            .padding(.leading, 15)
             .shadow(radius: 10)
             
             VStack(spacing: 29){
@@ -177,14 +178,15 @@ struct SingleTraining: View {
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             .frame(width: 76, height: 25, alignment: .center)
                         
-                        Text("")
+                        Text(formatDuration(workout.duration))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
-                                    .weight(.bold)
+                                .weight(.bold)
                             )
                             .multilineTextAlignment(.center)
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
-                            .frame(width: 110, height: 25, alignment: .trailing)
+
+                            .frame(width: 110, height: 25, alignment: .center)
                     }
                 }
                 .frame(width: 325, height: 57)
@@ -210,6 +212,26 @@ struct SingleTraining: View {
                           .frame(width: 109, height: 25, alignment: .leading)
                           .padding(.bottom, 50)
                           .padding(.trailing, 10)
+                        
+                        HStack (spacing: 0){
+                            Text("\(Int(workout.caloriesBurned))")
+                                .font(
+                                    Font.custom("Roboto Mono", size: 32)
+                                        .weight(.bold)
+                                )
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            Text("KCAL")
+                              .font(
+                                Font.custom("Roboto Mono", size: 14)
+                                  .weight(.bold)
+                              )
+                              .multilineTextAlignment(.center)
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                              .padding(.top, 12)
+                        }
+                        .padding(.top, 30)
                     }
                     .frame(width: 148, height: 100)
                     .background(.white)
@@ -233,6 +255,26 @@ struct SingleTraining: View {
                             .frame(width: 109, height: 25, alignment: .leading)
                             .padding(.bottom, 50)
                             .padding(.trailing, 10)
+                        
+                        HStack (spacing: 0){
+                            Text(String(format: "%.2f", workout.distance))
+                                .font(
+                                    Font.custom("Roboto Mono", size: 32)
+                                        .weight(.bold)
+                                )
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            Text("KM")
+                              .font(
+                                Font.custom("Roboto Mono", size: 14)
+                                  .weight(.bold)
+                              )
+                              .multilineTextAlignment(.center)
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                              .padding(.top, 12)
+                        }
+                        .padding(.top, 30)
                     }
                     .frame(width: 148, height: 100)
                     .background(.white)
@@ -259,6 +301,15 @@ struct SingleTraining: View {
                           .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                           .frame(width: 121, height: 25, alignment: .leading)
                           .padding(.bottom, 50)
+                        
+                        Text("\(workout.avgSteps)")
+                            .font(
+                                Font.custom("Roboto Mono", size: 32)
+                                    .weight(.bold)
+                            )
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            .padding(.top, 30)
                     }
                     .frame(width: 148, height: 100)
                     .background(.white)
@@ -281,6 +332,26 @@ struct SingleTraining: View {
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             .frame(width: 121, height: 25, alignment: .leading)
                             .padding(.bottom, 50)
+                        
+                        HStack (spacing: 0){
+                            Text(String(format: "%.2f", workout.avgHeartrate))
+                                .font(
+                                    Font.custom("Roboto Mono", size: 32)
+                                        .weight(.bold)
+                                )
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                            
+                            Text("PBM")
+                              .font(
+                                Font.custom("Roboto Mono", size: 14)
+                                  .weight(.bold)
+                              )
+                              .multilineTextAlignment(.center)
+                              .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                              .padding(.top, 12)
+                        }
+                        .padding(.top, 30)
                     }
                     .frame(width: 148, height: 100)
                     .background(.white)
@@ -295,7 +366,46 @@ struct SingleTraining: View {
         .fullScreenCover(isPresented: $showSpeedGraph) {
             SpeedGraph()
         }
+        .fullScreenCover(isPresented: $showHeartrateGraph) {
+            HeartrateGraph(trainingType: workout.type, trainingDate: formatDate(workout.date), dateForQuery: workout.date)
+        }
     }
+    
+    func formatDate(_ dateString: String) -> String {
+        // Usuń część w nawiasach
+        let cleanedDateString = dateString.components(separatedBy: " (").first ?? dateString
+        
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX") // Ustaw odpowiednią lokalizację
+        formatter.dateFormat = "EEE MMM dd yyyy HH:mm:ss ZZZZ"
+        
+        // Spróbuj sparsować datę
+        if let date = formatter.date(from: cleanedDateString) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.locale = Locale(identifier: "en_US_POSIX") // Ustaw odpowiednią lokalizację
+            outputFormatter.dateFormat = "EEE, dd/MM/yyyy"
+            return outputFormatter.string(from: date).uppercased()
+        } else {
+            // Dodatkowa próba parsowania przy użyciu innego formatu
+            formatter.dateFormat = "EEE MMM dd yyyy HH:mm:ss 'GMT'Z"
+            if let date = formatter.date(from: cleanedDateString) {
+                let outputFormatter = DateFormatter()
+                outputFormatter.locale = Locale(identifier: "en_US_POSIX")
+                outputFormatter.dateFormat = "EEE, dd/MM/yyyy"
+                return outputFormatter.string(from: date).uppercased()
+            }
+        }
+        
+        return "Invalid Date" // Jeśli wszystko zawiedzie
+    }
+
+    func formatDuration(_ duration: Int) -> String {
+        let hours = duration / 3600
+        let minutes = (duration % 3600) / 60
+        let seconds = duration % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
 }
 
 struct SingleTraining_Previews: PreviewProvider {
