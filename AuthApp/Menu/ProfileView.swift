@@ -30,7 +30,7 @@ struct ProfileView: View {
                         .foregroundColor(.clear)
                         .frame(width: 209, height: 209)
                         .background(
-                            Image("lamiine")
+                            Image("BasicProfilePicture")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 209, height: 209)

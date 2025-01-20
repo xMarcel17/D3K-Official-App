@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct TrainingsView: View {
-    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
+    //zakomentowane dla testow
     @EnvironmentObject var webSocketManager: WebSocketManager // Obsługa WebSocket
     @EnvironmentObject var languageManager: LocalizationManager // Obsługa lokalizacji
+    @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     
     @State private var workouts: [(id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)] = []
     @State private var currentPage: Int = 1
@@ -44,6 +45,7 @@ struct TrainingsView: View {
             SingleTraining(workout: selectedWorkout ?? defaultWorkout)
                     .environmentObject(webSocketManager)
                     .environmentObject(languageManager)
+            //zakomentowane dla testow
         }
     }
     

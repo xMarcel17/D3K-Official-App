@@ -73,6 +73,8 @@ struct MenuView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
+        .accessibilityIdentifier("loginAlert") // Dodano identyfikator
+
         .onAppear {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 for window in windowScene.windows {

@@ -45,7 +45,7 @@ class DatabaseManager {
         let insert = sensorData.insert(self.timestamp <- timestamp, self.ir <- ir, self.red <- red, self.accX <- accX, self.accY <- accY, self.accZ <- accZ)
         do {
             try db?.run(insert)
-            //print("Inserted data into database")
+            print("Inserted data into database")
         } catch {
             print("Error inserting data: \(error)")
         }

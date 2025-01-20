@@ -69,6 +69,13 @@ struct RegistrationView: View {
                 .scaledToFit()
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
+            
+            Image("AppIconTransparent")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 300, height: 300)
+                .clipped()
+                .padding(.bottom, 480)
         }
     }
     

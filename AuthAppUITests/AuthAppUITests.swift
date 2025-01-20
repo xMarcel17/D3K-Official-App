@@ -6,28 +6,35 @@
 //
 
 import XCTest
+@testable import AuthApp
 
 final class AuthAppUITests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testLogin_WithValidCredentials_ShouldSetIsLoggedIn() {
+            // Uruchomienie aplikacji
+            let app = XCUIApplication()
+            app.launch()
 
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
+            // Znalezienie pola tekstowego dla username
+            let usernameTextField = app.textFields["usernameTextField"]
+            XCTAssertTrue(usernameTextField.waitForExistence(timeout: 5), "Username text field should exist.")
+            usernameTextField.tap()
+            usernameTextField.typeText("admin")
 
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
+            // Znalezienie pola tekstowego dla password
+            let passwordTextField = app.secureTextFields["passwordTextField"]
+            XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5), "Password text field should exist.")
+            passwordTextField.tap()
+            passwordTextField.typeText("admin")
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+            // Znalezienie przycisku logowania i kliknięcie
+            let loginButton = app.buttons["loginButton"]
+            XCTAssertTrue(loginButton.waitForExistence(timeout: 5), "Login button should exist.")
+            loginButton.tap()
 
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+            // Sprawdzenie, czy po zalogowaniu widzimy ekran powitalny
+            let menuView = app.alerts["loginAlert"]
+            XCTAssertTrue(menuView.waitForExistence(timeout: 10), "Login alert should appear after login.")
     }
 
     func testLaunchPerformance() throws {

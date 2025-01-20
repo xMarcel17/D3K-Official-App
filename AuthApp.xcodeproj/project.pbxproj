@@ -159,9 +159,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1032682A2D38899D008D9907 /* Achievements */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Achievements;
+			sourceTree = "<group>";
+		};
+		1032682B2D3889A5008D9907 /* Forum */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Forum;
+			sourceTree = "<group>";
+		};
+		1032682C2D388A44008D9907 /* Trainings */ = {
+			isa = PBXGroup;
+			children = (
+				10CF5C5A2D37149000A7372C /* TrainingsView.swift */,
+				107553A62D3039D60034C450 /* SingleTrainingView */,
+			);
+			path = Trainings;
+			sourceTree = "<group>";
+		};
 		1039100B2D2EBEE200D158F6 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				102741472D2E012600C925CD /* SettingsView.swift */,
 				1039101C2D2F2B8500D158F6 /* ProfileDataUpdateView.swift */,
 				1039101E2D2F2D8900D158F6 /* ChangeProfilePicture.swift */,
 				10962DD02C94F3CC0031CEE7 /* ChangePasswordView.swift */,
@@ -175,14 +199,14 @@
 		1039100D2D2EBF2100D158F6 /* Menu */ = {
 			isa = PBXGroup;
 			children = (
+				10730E002D2A139700C0BDDA /* MenuView.swift */,
 				10730E092D2C1C7A00C0BDDA /* MainView.swift */,
-				10CF5C5A2D37149000A7372C /* TrainingsView.swift */,
-				107553A62D3039D60034C450 /* SingleTrainingView */,
-				103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */,
+				1032682C2D388A44008D9907 /* Trainings */,
+				1032682B2D3889A5008D9907 /* Forum */,
+				1032682A2D38899D008D9907 /* Achievements */,
 				103910102D2EC17600D158F6 /* BMIKCAL Calculator */,
 				1000345D2D2D9E0A0007F296 /* SmartbandView.swift */,
 				100034612D2DF8C10007F296 /* ProfileView.swift */,
-				102741472D2E012600C925CD /* SettingsView.swift */,
 				1039100B2D2EBEE200D158F6 /* Settings */,
 			);
 			path = Menu;
@@ -217,6 +241,7 @@
 			children = (
 				103910112D2EE18100D158F6 /* BMICalcView.swift */,
 				103910182D2F225800D158F6 /* KCALCalcView.swift */,
+				103910092D2EBECA00D158F6 /* BMIKCALCalc.swift */,
 			);
 			path = "BMIKCAL Calculator";
 			sourceTree = "<group>";
@@ -283,14 +308,13 @@
 			children = (
 				10BC0E362C6A95EB00BBEAC6 /* AuthAppApp.swift */,
 				1039100F2D2EC0E000D158F6 /* Start */,
-				10730E002D2A139700C0BDDA /* MenuView.swift */,
 				1039100D2D2EBF2100D158F6 /* Menu */,
 				1039100E2D2EBFC300D158F6 /* Small Alerts */,
 				10730E082D2C12CC00C0BDDA /* Managers */,
 				10962DC52C8F46140031CEE7 /* Info.plist */,
+				10BC0E3A2C6A95EC00BBEAC6 /* Assets.xcassets */,
 				10D305D02D3753DC002658ED /* testDane2.json */,
 				102B49B62D2C807A002056F4 /* testDane.json */,
-				10BC0E3A2C6A95EC00BBEAC6 /* Assets.xcassets */,
 				10813EA32D27761400002705 /* Font */,
 				104DE64F2D285CF2003E2398 /* Gif */,
 				10BC0E3C2C6A95EC00BBEAC6 /* Preview Content */,

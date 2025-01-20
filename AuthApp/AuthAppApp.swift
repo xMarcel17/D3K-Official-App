@@ -13,15 +13,15 @@ struct AuthAppApp: App {
                 IntroView()
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            showIntro = false
+                            showIntro = false   // Flaga ustawiana na false (przełączenie na widok LoginView)
                         }
                     }
             } else {
                 NavigationView {
                     LoginView() 
-                        .environmentObject(localizationManager)
-                        .environmentObject(bleManager)
-                        .environmentObject(webSocketManager)
+                        .environmentObject(localizationManager) // Przekazany obiekt localizationManager
+                        .environmentObject(bleManager)  // Przekazany obiekt bleManager
+                        .environmentObject(webSocketManager)    // Przekazany obiekt webSocketManager
                 }
             }
         }

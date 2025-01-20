@@ -313,8 +313,8 @@ struct SmartbandView: View {
                             .cornerRadius(40)
                             .shadow(radius: 90)
                             .transition(.opacity)
-                            .environmentObject(BLEManager()) // Przykładowe środowisko BLEManager
-                            .environmentObject(WebSocketManager()) // Przykładowe środowisko WebSocketManager
+                            .environmentObject(bleManager) // Przykładowe środowisko BLEManager
+                            .environmentObject(webSocketManager) // Przykładowe środowisko WebSocketManager
                         }
                     }
                 )

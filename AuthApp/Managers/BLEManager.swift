@@ -103,7 +103,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
                 if characteristic.uuid == privateKeyUUID {
                     print("Odnaleziono charakterystykę Private Key \(characteristic.uuid)")
                     self.privateKeyCharacteristic = characteristic
-                    sendPrivateKey()
+                    sendPrivateKey()    // Wysłanie klucza prywatnego
                     sleep(1) // Opóźnienie po wysłaniu klucza prywatnego
                 } else if characteristic.uuid == characteristicUUID {
                     print("Odnaleziono charakterystykę danych \(characteristic.uuid)")

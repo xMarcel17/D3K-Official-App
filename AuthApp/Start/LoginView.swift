@@ -4,19 +4,19 @@ struct LoginView: View {
     @EnvironmentObject var languageManager: LocalizationManager
     @EnvironmentObject var webSocketManager: WebSocketManager
 
-    @State private var username = ""
-    @State private var password = ""
-    @State private var errorMessage: String?
-    @State private var isLoggedIn = false
-    @State private var loggedInUsername: String?
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    @State private var showWelcomeAlert = false
-    @State private var showLogoutAlert = false
-    @State private var showRegistrationSuccessAlert = false
-    @State private var rememberMe = false
-    @State private var showLanguageSelection = false
-    @State private var isUserExisting = false
+    @State internal var username = ""
+    @State internal var password = ""
+    @State internal var errorMessage: String?
+    @State internal var isLoggedIn = false
+    @State internal var loggedInUsername: String?
+    @State internal var showAlert = false
+    @State internal var alertMessage = ""
+    @State internal var showWelcomeAlert = false
+    @State internal var showLogoutAlert = false
+    @State internal var showRegistrationSuccessAlert = false
+    @State internal var rememberMe = false
+    @State internal var showLanguageSelection = false
+    @State internal var isUserExisting = false
     
     var body: some View {
         if isLoggedIn && isUserExisting {
@@ -56,6 +56,7 @@ struct LoginView: View {
             
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Notification"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                
             }
             .alert(isPresented: $showLogoutAlert) {
                 Alert(title: Text("Notification"), message: Text("Successfully logged out!"), dismissButton: .default(Text("OK")))
@@ -97,6 +98,13 @@ struct LoginView: View {
                 .scaledToFit()
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
+            
+            Image("AppIconTransparent")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 300, height: 300)
+                .clipped()
+                .padding(.bottom, 480)
         }
     }
 
@@ -132,6 +140,7 @@ struct LoginView: View {
                         .keyboardType(.default)
                         .textContentType(.username)
                         .font(.system(size: 16, weight: .semibold, design: .monospaced))
+                        .accessibilityIdentifier("usernameTextField") // Dodano identyfikator
                 }
                 
                 ZStack(alignment: .leading) {
@@ -149,6 +158,7 @@ struct LoginView: View {
                         .autocapitalization(.none)
                         .textContentType(.password)
                         .font(.system(size: 16, weight: .semibold, design: .monospaced))
+                        .accessibilityIdentifier("passwordTextField") // Dodano identyfikator
                 }
 
                 Toggle(isOn: $rememberMe) {
@@ -180,6 +190,7 @@ struct LoginView: View {
                         .cornerRadius(100.0)
                     
                 }
+                .accessibilityIdentifier("loginButton") // Dodano identyfikator
 
                 NavigationLink(
                     destination: RegistrationView(isLoggedIn: $isLoggedIn, loggedInUsername: $loggedInUsername, showRegistrationSuccessAlert: $showRegistrationSuccessAlert)
