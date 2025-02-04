@@ -13,16 +13,34 @@ struct SmartbandView: View {
     @State private var wifiSSID = ""
     @State private var wifiPassword = ""
     @State private var showAlert = false
+    
+    @State private var showDataFetchedAlert = false
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
         ZStack {
             ZStack{
                 VStack (spacing: 15){
                     VStack (spacing: 5){
-                        Image("Smartband")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 167, height: 167)
+                        if currentTheme == "Theme1" {
+                            Image("Smartband")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 167, height: 167)
+                        }
+                        else if currentTheme == "Theme2" {
+                            Image("Smartband2")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 167, height: 167)
+                        }
+                        else {
+                            Image("Smartband")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 167, height: 167)
+                        }
                         
                         Text("Smartband D3K")
                           .font(
@@ -42,7 +60,7 @@ struct SmartbandView: View {
                         
                         // Informacje o statusie połączenia
                         if bleManager.isConnected {
-                            Text("CONNECTED")
+                            Text(languageManager.localizedString(forKey: "connected"))
                               .font(
                                 Font.custom("Roboto Mono", size: 20)
                                   .weight(.bold)
@@ -50,7 +68,7 @@ struct SmartbandView: View {
                               .multilineTextAlignment(.center)
                               .foregroundColor(Color(red: 0.13, green: 0.7, blue: 0.23))
                         } else {
-                            Text("DISCONNECTED")
+                            Text(languageManager.localizedString(forKey: "disconnected"))
                               .font(
                                 Font.custom("Roboto Mono", size: 20)
                                   .weight(.bold)
@@ -64,7 +82,7 @@ struct SmartbandView: View {
                         Button(action: {
                             bleManager.startScanning()
                         }) {
-                            Text("Connect")
+                            Text(languageManager.localizedString(forKey: "connect"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -87,7 +105,7 @@ struct SmartbandView: View {
                         Button(action: {
                             bleManager.disconnect()
                         }) {
-                            Text("Disonnect")
+                            Text(languageManager.localizedString(forKey: "disconnect"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -110,12 +128,12 @@ struct SmartbandView: View {
                         Button(action: {
                             if bleManager.isConnected && bleManager.dataCharacteristic != nil {
                                 bleManager.startNotifications()
-                                print("Rozpoczęto subskrypcję.")
+                                print("Subscription started.")
                             } else {
-                                print("Nie znaleziono charakterystyki lub urządzenia.")
+                                print("Characteristic or device not found.")
                             }
                         }) {
-                            Text("Receive data")
+                            Text(languageManager.localizedString(forKey: "receivedata"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -138,7 +156,7 @@ struct SmartbandView: View {
                         Button(action: {
                             selectTrainingType = true
                         }) {
-                            Text("Send data to server")
+                            Text(languageManager.localizedString(forKey: "sendtoserver"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -161,7 +179,7 @@ struct SmartbandView: View {
                         Button(action: {
                             showWifiFields.toggle()
                         }) {
-                            Text("Send WiFi")
+                            Text(languageManager.localizedString(forKey: "sendwifi"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -205,7 +223,7 @@ struct SmartbandView: View {
                                 // SecureField z własnym placeholderem i tłem
                                 ZStack(alignment: .leading) {
                                     if wifiPassword.isEmpty { // Sprawdzanie, czy pole jest puste, aby wyświetlić placeholder
-                                        Text("WiFi Password")
+                                        Text(languageManager.localizedString(forKey: "wifipassword"))
                                             .padding(.leading, 17) // Opcjonalne odsunięcie tekstu placeholdera
                                             .font(Font.custom("RobotoMono-Bold", size: 14))
                                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -226,7 +244,7 @@ struct SmartbandView: View {
                                     wifiPassword = ""
                                     showWifiFields = false
                                 }) {
-                                    Text("Send")
+                                    Text(languageManager.localizedString(forKey: "send"))
                                         .font(Font.custom("RobotoMono-Bold", size: 14))
                                         .foregroundColor(.white)
                                         .padding()
@@ -252,10 +270,10 @@ struct SmartbandView: View {
                             if bleManager.isConnected && bleManager.timeSyncCharacteristic != nil {
                                 bleManager.sendTimeSync()
                             } else {
-                                print("Nie znaleziono charakterystyki lub urządzenia.")
+                                print("Characteristic or device not found.")
                             }
                         }) {
-                            Text("Sync time")
+                            Text(languageManager.localizedString(forKey: "synctime"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -279,7 +297,7 @@ struct SmartbandView: View {
                         Button(action: {
                             showBandInfoNotification = true
                         }) {
-                            Text("Band info")
+                            Text(languageManager.localizedString(forKey: "bandinfo"))
                                 .font(Font.custom("RobotoMono-Bold", size: 14))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -336,19 +354,35 @@ struct SmartbandView: View {
                 )
             }
             .padding(.bottom, 35)
+            .onReceive(bleManager.$isDataFetched) { isFetched in
+                print("isDataFetched changed to: \(isFetched)")
+                DispatchQueue.main.async {
+                    if isFetched {
+                        showDataFetchedAlert = true
+                        bleManager.isDataFetched = false
+                    }
+                }
+            }
+            .alert(isPresented: $showDataFetchedAlert) {
+                Alert(
+                    title: Text(languageManager.localizedString(forKey: "downloaded")),
+                    message: Text(languageManager.localizedString(forKey: "downloadedtext")),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
             
             ZStack{
+                // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+                let (topColor, bottomColor) = colorsForTheme(currentTheme)
+
                 Rectangle()
                     .foregroundColor(.clear)
                     .frame(width: abs(500), height: abs(100))
                     .background(
                         LinearGradient(
-                            stops: [
-                                Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                            ],
-                            startPoint: UnitPoint(x: 0.5, y: 0),
-                            endPoint: UnitPoint(x: 0.5, y: 1)
+                            gradient: Gradient(colors: [topColor, bottomColor]),
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
                         .frame(width: abs(500), height: abs(100))
                         .shadow(radius: 5)
@@ -363,8 +397,8 @@ struct SmartbandView: View {
             }
             .alert(isPresented: $showAlert) {
                 Alert(
-                    title: Text("Training Processed"),
-                    message: Text("Training was processed successfully and you can find it in the Trainings section!"),
+                    title: Text(languageManager.localizedString(forKey: "trainingprocessed")),
+                    message: Text(languageManager.localizedString(forKey: "trainingtext")),
                     dismissButton: .default(Text("OK"))
                 )
             }
@@ -376,6 +410,24 @@ struct SmartbandView: View {
     
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
     }
 }
 

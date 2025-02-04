@@ -4,6 +4,8 @@ struct AppInformation: View {
     @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
 
@@ -33,12 +35,12 @@ struct AppInformation: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -51,6 +53,7 @@ struct AppInformation: View {
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
         }
+
     }
 
     var contentView: some View {
@@ -73,7 +76,7 @@ struct AppInformation: View {
                         .foregroundColor(.white)
                         .frame(width: 317, height: 41, alignment: .center)
                     
-                    Text("version: 1.0")
+                    Text(languageManager.localizedString(forKey: "appversion"))
                         .font(
                             Font.custom("Roboto Mono", size: 24)
                                 .weight(.bold)
@@ -88,7 +91,7 @@ struct AppInformation: View {
 
             }
             
-            Text("Created by:\nMarcel Radtke\nBartosz Rakowski")
+            Text(languageManager.localizedString(forKey: "createdby"))
                 .font(
                     Font.custom("Roboto Mono", size: 20)
                         .weight(.bold)
@@ -99,7 +102,24 @@ struct AppInformation: View {
                 .shadow(radius: 10)
         }
     }
-
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
 struct AppInformation_Previews: PreviewProvider {

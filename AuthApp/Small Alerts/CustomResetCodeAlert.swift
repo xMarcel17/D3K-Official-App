@@ -11,7 +11,7 @@ struct CustomResetCodeAlert: View {
 
         VStack(spacing: 20) {
             
-            Text("Here is your password reset code ")
+            Text(languageManager.localizedString(forKey: "resetcodetext"))
               .font(
                 Font.custom("Roboto Mono", size: 24)
                   .weight(.bold)
@@ -24,7 +24,7 @@ struct CustomResetCodeAlert: View {
             ZStack{
                 Rectangle()
                   .foregroundColor(.clear)
-                  .frame(width: 223, height: 71)
+                  .frame(width: 169, height: 71)
                   .background(Color(red: 0.85, green: 0.85, blue: 0.85))
                   .cornerRadius(20)
                 
@@ -86,9 +86,9 @@ struct CustomResetCodeAlert: View {
 struct CustomResetCodeAlert_Previews: PreviewProvider {
     static var previews: some View {
         CustomResetCodeAlert(
-            resetCode: "1234-5678", // Przykładowy kod resetu
+            resetCode: "123678", // Przykładowy kod resetu
             onDismiss: {},         // Przykładowa pusta akcja
-            customMessage: "Twój kod resetu został wygenerowany." // Przykładowy komunikat
+            customMessage: "Save it in a safe place. This message is displayed once." // Przykładowy komunikat
         )
         .environmentObject(LocalizationManager()) // Ustawienie środowiska dla LocalizationManager
     }

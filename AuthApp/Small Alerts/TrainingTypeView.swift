@@ -3,6 +3,7 @@ import SwiftUI
 struct TrainingTypeView: View {
     @EnvironmentObject var bleManager: BLEManager
     @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
     
     let onDismiss: () -> Void
     
@@ -16,7 +17,7 @@ struct TrainingTypeView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            Text("Select training type for this particular training session")
+            Text(languageManager.localizedString(forKey: "trainingtype"))
                 .font(
                   Font.custom("Roboto Mono", size: 26)
                     .weight(.bold)
@@ -63,6 +64,7 @@ struct TrainingTypeView: View {
     }
     
     func sendJSONFile(workoutType: String) {
+        // Definicja MET dla walidacji
         let MET: [String: Double] = [
             "Walking": 3.8,
             "Jogging": 7.5,
@@ -78,54 +80,62 @@ struct TrainingTypeView: View {
             "IntenseExertion": 7.0
         ]
 
+        // Sprawdzenie poprawności workoutType
         guard MET[workoutType] != nil else {
-            print("Nieznany typ treningu: \(workoutType)")
+            print("Unknown training type: \(workoutType)")
             return
         }
 
-        guard let filePath = Bundle.main.path(forResource: "testDane2", ofType: "json") else {
-            print("Nie znaleziono pliku JSON w zasobach projektu.")
+        // Ścieżka do pliku JSON
+        let fileName = "exportedData.json"
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+
+        // Odczyt zawartości pliku JSON
+        guard let jsonText = try? String(contentsOf: fileURL, encoding: .utf8) else {
+            print("The contents of the JSON file could not be loaded")
             return
         }
 
-        guard let jsonText = try? String(contentsOfFile: filePath, encoding: .utf8) else {
-            print("Nie można załadować zawartości pliku JSON")
-            return
-        }
-
+        // Pobranie session_id z UserDefaults
         guard let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
-            print("Brak session-id w UserDefaults")
+            print("Missing session-id in UserDefaults")
             return
         }
 
-        guard let url = URL(string: "http://192.168.1.20:8000/sensors/handle_sensor_data?workoutType=\(workoutType)") else {
-            print("Niepoprawny URL")
+        // Tworzenie URL z workoutType jako parametrem
+        guard let url = URL(string: "http://192.168.1.22:8000/sensors/handle_sensor_data?workoutType=\(workoutType)") else {
+            print("Invalid URL")
             return
         }
 
+        // Konfiguracja żądania HTTP
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(sessionId, forHTTPHeaderField: "session-id")
         request.httpBody = jsonText.data(using: .utf8)
 
+        // Wysyłanie danych do serwera
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    print("Błąd podczas wysyłania danych: \(error)")
+                    print("Error while sending data: \(error)")
                     return
                 }
                 if let httpResponse = response as? HTTPURLResponse {
-                    print("Status kod serwera: \(httpResponse.statusCode)")
+                    print("Server code status: \(httpResponse.statusCode)")
                     if httpResponse.statusCode == 200 {
-                        print("Dane zostały pomyślnie wysłane na serwer.")
+                        print("The data has been successfully sent to the server.")
+                        BLEManager.shared.deleteJsonFile() // Usuwanie pliku JSON na początku działania aplikacji
+                        DatabaseManager.shared.clearDatabase() // czyszczenie bazy danych na początku działania aplikacji
                     } else {
-                        print("Błąd serwera: \(httpResponse.statusCode)")
+                        print("Server error: \(httpResponse.statusCode)")
                     }
                 }
             }
         }.resume()
     }
+
 }
 
 struct TrainingTypeView_Previews: PreviewProvider {

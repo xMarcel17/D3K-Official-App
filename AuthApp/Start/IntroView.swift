@@ -3,15 +3,17 @@ import UIKit
 
 struct IntroView: View {    
     @State private var isAnimationComplete = false
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -33,6 +35,25 @@ struct IntroView: View {
                         .padding(.bottom, 50) // Opcjonalny margines
                 }
             }
+        }
+
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
         }
     }
 }

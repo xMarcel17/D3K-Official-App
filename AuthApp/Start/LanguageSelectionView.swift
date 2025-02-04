@@ -4,6 +4,9 @@ struct LanguageSelectionView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
         NavigationView {
@@ -26,9 +29,10 @@ struct LanguageSelectionView: View {
                 .padding(.horizontal)
                 .padding(20) // Dostosuj padding według potrzeb
                 .padding(.top, -400) // Dostosuj padding według potrzeb
+                .accessibilityIdentifier("languageSelectionBackButton")
                 
                 VStack(spacing: 25) {
-                    Text("Select language")
+                    Text(languageManager.localizedString(forKey: "select_language_title"))
                         .font(Font.custom("RobotoMono-Bold", size: 32))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -61,12 +65,12 @@ struct LanguageSelectionView: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -78,6 +82,25 @@ struct LanguageSelectionView: View {
                 .scaledToFit()
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
+        }
+
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
         }
     }
 }

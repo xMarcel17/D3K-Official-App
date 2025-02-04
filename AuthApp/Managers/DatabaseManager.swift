@@ -54,9 +54,9 @@ class DatabaseManager {
     func clearDatabase() {
         do {
             try db?.run(sensorData.delete())
-            print("Baza danych została wyczyszczona.")
+            print("The database has been cleared.")
         } catch {
-            print("Błąd podczas czyszczenia bazy danych: \(error)")
+            print("Error while clearing the database: \(error)")
         }
     }
     
@@ -70,14 +70,14 @@ class DatabaseManager {
 
         // Odczyt userId z UserDefaults jako String
         guard let userId = UserDefaults.standard.value(forKey: "user_id") as? String else {
-            print("Nie znaleziono userId w UserDefaults")
+            print("No userId found in UserDefaults")
             return
         }
 
         do {
             let db = try Connection(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("SensorData").appendingPathExtension("sqlite3").path)
+            
             let sensorData = Table("SensorData")
-
             let timestampColumn = SQLite.Expression<Int>("timestamp")
             let irColumn = SQLite.Expression<Int>("ir")
             let redColumn = SQLite.Expression<Int>("red")
@@ -89,7 +89,7 @@ class DatabaseManager {
                 if recordedAt.isEmpty {
                     let date = Date(timeIntervalSince1970: TimeInterval(row[timestampColumn]))
                     let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"  //Dodanie T oraz Z sformatowanej daty
                     recordedAt = dateFormatter.string(from: date)
                 }
 
@@ -116,10 +116,10 @@ class DatabaseManager {
             let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
 
             try data.write(to: fileURL)
-            print("Dane zapisane do pliku JSON: \(fileURL)")
-            print (userId)
+            print("Data saved to JSON file: \(fileURL)")
+            print("User ID: \(userId)")
         } catch {
-            print("Błąd podczas eksportowania danych do JSON: \(error)")
+            print("Error exporting data to JSON: \(error)")
         }
     }
 }

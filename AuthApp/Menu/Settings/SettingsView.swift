@@ -16,6 +16,8 @@ struct SettingsView: View {
     
     @Binding var isLoggedIn: Bool
     
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
     var body: some View {
         ZStack {
             ZStack{
@@ -26,7 +28,7 @@ struct SettingsView: View {
                     .opacity(0.37)
                 
                 VStack(spacing: 40){
-                    Text("Settings")
+                    Text(languageManager.localizedString(forKey: "settingstitle"))
                       .font(
                         Font.custom("Roboto Mono", size: 40)
                           .weight(.bold)
@@ -41,7 +43,7 @@ struct SettingsView: View {
                                 showChangeUserData = true
                             } label: {
                                 HStack{
-                                    Text("Change user data")
+                                    Text(languageManager.localizedString(forKey: "changeuserdata"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.leading)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -67,7 +69,7 @@ struct SettingsView: View {
                                 showChangeProfilePicture = true
                             } label: {
                                 HStack{
-                                    Text("Change profile picture")
+                                    Text(languageManager.localizedString(forKey: "changeprofilepicture"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -93,7 +95,7 @@ struct SettingsView: View {
                                 showChangePassword = true
                             } label: {
                                 HStack{
-                                    Text("Change password")
+                                    Text(languageManager.localizedString(forKey: "changepassword"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -122,7 +124,7 @@ struct SettingsView: View {
                                 showChangeLanguage = true
                             } label: {
                                 HStack{
-                                    Text("Change language")
+                                    Text(languageManager.localizedString(forKey: "change_language"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -148,7 +150,7 @@ struct SettingsView: View {
                                 showChangeTheme = true
                             } label: {
                                 HStack{
-                                    Text("Change theme")
+                                    Text(languageManager.localizedString(forKey: "changetheme"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -174,7 +176,7 @@ struct SettingsView: View {
                                 showAppInformation = true
                             } label: {
                                 HStack{
-                                    Text("App information")
+                                    Text(languageManager.localizedString(forKey: "appinfo"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -200,7 +202,7 @@ struct SettingsView: View {
                                 showContactUs = true
                             } label: {
                                 HStack{
-                                    Text("Contact us")
+                                    Text(languageManager.localizedString(forKey: "contactus"))
                                         .font(Font.custom("RobotoMono-Bold", size: 17))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -230,17 +232,17 @@ struct SettingsView: View {
 
             
             ZStack{
+                // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+                let (topColor, bottomColor) = colorsForTheme(currentTheme)
+                
                 Rectangle()
                     .foregroundColor(.clear)
                     .frame(width: abs(500), height: abs(100))
                     .background(
                         LinearGradient(
-                            stops: [
-                                Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                            ],
-                            startPoint: UnitPoint(x: 0.5, y: 0),
-                            endPoint: UnitPoint(x: 0.5, y: 1)
+                            gradient: Gradient(colors: [topColor, bottomColor]),
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
                         .frame(width: abs(500), height: abs(100))
                         .shadow(radius: 5)
@@ -250,13 +252,46 @@ struct SettingsView: View {
         }
         .background(.white)
     }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
-//struct SettingsView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        SettingsView(
-//        )
-//        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-//        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
-//    }
-//}
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Możesz użyć Group, by pokazać różne warianty (np. Light/Dark Mode)
+        Group {
+            SettingsView(
+                username: "PreviewUser",
+                isLoggedIn: .constant(true)
+            )
+            .environmentObject(WebSocketManager())    // Obiekt środowiskowy
+            .environmentObject(LocalizationManager()) // Obiekt środowiskowy
+            .previewDisplayName("Light Mode")
+
+            SettingsView(
+                username: "PreviewUser",
+                isLoggedIn: .constant(true)
+            )
+            .environmentObject(WebSocketManager())
+            .environmentObject(LocalizationManager())
+            .preferredColorScheme(.dark)
+            .previewDisplayName("Dark Mode")
+        }
+    }
+}

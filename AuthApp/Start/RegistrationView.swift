@@ -18,6 +18,8 @@ struct RegistrationView: View {
     
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
         ZStack {
@@ -38,6 +40,7 @@ struct RegistrationView: View {
                         .frame(width: 230, height: 40)
                         .shadow(radius: 10)
                 }
+                .accessibilityIdentifier("registrationViewBackButton")
                 Spacer() // Push content to the right
             }
             .padding(.horizontal)
@@ -52,12 +55,12 @@ struct RegistrationView: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -70,13 +73,15 @@ struct RegistrationView: View {
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
             
-            Image("AppIconTransparent")
+            Image("Logo")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 300, height: 300)
                 .clipped()
                 .padding(.bottom, 480)
+                .shadow(radius: 10)
         }
+
     }
     
     var contentView: some View {
@@ -88,7 +93,7 @@ struct RegistrationView: View {
                 .shadow(radius: 10)
             
             VStack(spacing: 20) {
-                Text("Registration")
+                Text(languageManager.localizedString(forKey: "register_title"))
                     .font(Font.custom("RobotoMono-Bold", size: 28))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -130,7 +135,7 @@ struct RegistrationView: View {
                 
                 ZStack(alignment: .leading) {
                     if passwordSecond.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                        Text(languageManager.localizedString(forKey: "password_placeholder"))
+                        Text(languageManager.localizedString(forKey: "passwordSecond_placeholder"))
                             .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
                             .font(.system(size: 16, weight: .semibold, design: .monospaced))
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -148,7 +153,7 @@ struct RegistrationView: View {
                 Button(action: {
                     validateAndRegister()
                 }) {
-                    Text("Register")
+                    Text(languageManager.localizedString(forKey: "register_button"))
                         .font(Font.custom("RobotoMono-Bold", size: 16))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -171,7 +176,7 @@ struct RegistrationView: View {
             .frame(maxWidth: 321, maxHeight: 436)
             
             .alert(isPresented: $showAlert) {
-                Alert(title: Text("Notification"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                Alert(title: Text(languageManager.localizedString(forKey: "register_failed")), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
             .overlay(
                 Group{
@@ -181,7 +186,7 @@ struct RegistrationView: View {
                             onDismiss: {
                                 self.loginAfterRegistration()
                             },
-                            customMessage: "Save it in a safe place. This message is displayed once."
+                            customMessage: languageManager.localizedString(forKey: "register_failed_message_third")
                         )
                         .frame(width: 325, height: 392)
                         .background(Color.white)
@@ -197,18 +202,29 @@ struct RegistrationView: View {
     }
     
     func validateAndRegister() {
-        if password != passwordSecond {
-            alertMessage = "Hasła nie są identyczne. Spróbuj ponownie."
+        // 1. Sprawdź, czy pola hasła nie są puste
+        if password.isEmpty || passwordSecond.isEmpty {
+            alertMessage = languageManager.localizedString(forKey: "register_failed_message_first")
             showAlert = true
             return
         }
+
+        // 2. Sprawdź, czy pola hasła są takie same
+        if password != passwordSecond {
+            alertMessage = languageManager.localizedString(forKey: "register_failed_message_second")
+            showAlert = true
+            return
+        }
+
+        // 3. Jeżeli wszystkie warunki są spełnione – rozpoczynamy rejestrację
         register()
     }
+
     
     func register() {
         print("Register button tapped")
         
-        guard let url = URL(string: "http://192.168.1.20:8000/auth/register") else {
+        guard let url = URL(string: "http://192.168.1.22:8000/auth/register") else {
             print("Invalid URL")
             return
         }
@@ -244,7 +260,7 @@ struct RegistrationView: View {
                 
                 if httpResponse.statusCode == 403 {
                     DispatchQueue.main.async {
-                        self.alertMessage = "An account with this username already exists. Please try again."
+                        self.alertMessage = languageManager.localizedString(forKey: "register_failed_message_fourth")
                         self.showAlert = true
                     }
                 } else if httpResponse.statusCode == 201 {
@@ -259,7 +275,7 @@ struct RegistrationView: View {
                     }
                 } else {
                     DispatchQueue.main.async {
-                        self.alertMessage = "Registration failed with status code \(httpResponse.statusCode)"
+                        self.alertMessage = languageManager.localizedString(forKey: "register_failed_message_fifth")
                         self.showAlert = true
                     }
                 }
@@ -272,7 +288,7 @@ struct RegistrationView: View {
     func loginAfterRegistration() {
         print("Logging in after registration")
 
-        guard let url = URL(string: "http://192.168.1.20:8000/auth/login") else {
+        guard let url = URL(string: "http://192.168.1.22:8000/auth/login") else {
             print("Invalid URL")
             return
         }
@@ -338,7 +354,7 @@ struct RegistrationView: View {
     
     func verifyUser() {
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
-              let url = URL(string: "http://192.168.1.20:8000/health/users/?userId=\(userId)") else {
+              let url = URL(string: "http://192.168.1.22:8000/health/users/?userId=\(userId)") else {
             print("Invalid URL or userId not available")
             return
         }
@@ -366,6 +382,24 @@ struct RegistrationView: View {
                 }
             }
         }.resume()
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
     }
 }
 

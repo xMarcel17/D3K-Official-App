@@ -11,7 +11,7 @@ struct KCALOutcome: View {
 
         VStack(spacing: 20) {
             
-            Text("Your Calorie income is:")
+            Text(languageManager.localizedString(forKey: "kcaloutcome"))
               .font(
                 Font.custom("Roboto Mono", size: 24)
                   .weight(.bold)
@@ -81,11 +81,20 @@ struct KCALOutcome: View {
     }
 }
 
-//struct KCALOutcome_Previews: PreviewProvider {
-//    static var previews: some View {
-//        KCALOutcome(
-//        )
-//    }
-//}
+struct KCALOutcome_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            KCALOutcome(kcal: 2000)
+                .previewDisplayName("2,000 kcal")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
 
-
+            KCALOutcome(kcal: 3100)
+                .previewDisplayName("3,100 kcal")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
+        }
+        .previewLayout(.sizeThatFits)
+        .padding()
+    }
+}

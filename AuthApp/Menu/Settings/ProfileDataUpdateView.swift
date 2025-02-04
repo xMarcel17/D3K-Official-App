@@ -5,8 +5,7 @@ struct ProfileDataUpdateView: View {
     @State private var age: String = ""
     @State private var weight: String = ""
     @State private var height: String = ""
-    @State private var bmr: String = ""
-    @State private var tdee: String = ""
+    @State private var selectedActivityIndex: Int = 0
     
     @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
@@ -16,6 +15,17 @@ struct ProfileDataUpdateView: View {
     @State private var alertMessage = ""
     
     @State private var showSuccessAlert = false // Dodanie zmiennej stanu dla alertu
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
+    let activityLevels: [(String, Float?)] = [
+        ("Choose your activity", nil), // Opcja domyślna, nie wysyłana na serwer
+        ("Very low (0-1 trainings/week)", 1.3),
+        ("Low (2-3 trainings/week)", 1.4),
+        ("Medium (4-5 trainings/week)", 1.6),
+        ("High (6-7 trainings/week)", 1.75),
+        ("Very high activity", 2.0)
+    ]
 
     var body: some View {
         ZStack {
@@ -44,12 +54,12 @@ struct ProfileDataUpdateView: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -62,17 +72,27 @@ struct ProfileDataUpdateView: View {
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
         }
+
     }
 
     var contentView: some View {
         ZStack {
             VStack(spacing: 20) {
-                Text("Edit your data")
-                    .font(Font.custom("RobotoMono-Bold", size: 32))
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
-                    .offset(y: -15)
-                    .shadow(radius: 10)
+                VStack{
+                    Text(languageManager.localizedString(forKey: "edityourdata"))
+                        .font(Font.custom("RobotoMono-Bold", size: 32))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
+                        .offset(y: -15)
+                        .shadow(radius: 10)
+                    
+                    Text(languageManager.localizedString(forKey: "edityourdatatext"))
+                        .font(Font.custom("RobotoMono-Bold", size: 20))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
+                        .offset(y: -15)
+                        .shadow(radius: 10)
+                }
 
                 Group {
                     ZStack(alignment: .leading) {
@@ -122,29 +142,18 @@ struct ProfileDataUpdateView: View {
                         .keyboardType(.numberPad)
                     }
                     
-                    ZStack(alignment: .leading) {
-                        if bmr.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                            Text("BMR")
-                                .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
-                                .font(.system(size: 16, weight: .light, design: .monospaced))
-                                .foregroundColor(.white)
+                    Picker(languageManager.localizedString(forKey: "activity_placeholder"), selection: $selectedActivityIndex) {
+                        ForEach(0..<activityLevels.count, id: \.self) { index in
+                            Text(activityLevels[index].0).tag(index)
                         }
-                        TextField("", text: $bmr)
-                        .padding()
-                        .keyboardType(.numberPad)
                     }
+                    .pickerStyle(MenuPickerStyle())
+                    .frame(width: 323, height: 60)
+                    .cornerRadius(100)
+                    .foregroundColor(.white)
+                    .padding()
 
-                    ZStack(alignment: .leading) {
-                        if tdee.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                            Text("TDEE")
-                                .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
-                                .font(.system(size: 16, weight: .light, design: .monospaced))
-                                .foregroundColor(.white)
-                        }
-                        TextField("", text: $tdee)
-                        .padding()
-                        .keyboardType(.numberPad)
-                    }
+                    
                 }
                 .padding()
                 .foregroundColor(.white)
@@ -159,7 +168,7 @@ struct ProfileDataUpdateView: View {
                 Button(action: {
                     updateDataToServer()
                 }) {
-                    Text("Potwierdź dane")
+                    Text(languageManager.localizedString(forKey: "confirm_data_button"))
                         .font(Font.custom("RobotoMono-Bold", size: 17))
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -178,8 +187,8 @@ struct ProfileDataUpdateView: View {
         }
         .alert(isPresented: $showSuccessAlert) {
             Alert(
-                title: Text("Sukces!"),
-                message: Text("Dane zostały pomyślnie zaktualizowane."),
+                title: Text(languageManager.localizedString(forKey: "success")),
+                message: Text(languageManager.localizedString(forKey: "successtext")),
                 dismissButton: .default(Text("OK")) {
                     presentationMode.wrappedValue.dismiss() // Zamknięcie widoku po zatwierdzeniu
                 }
@@ -193,110 +202,113 @@ struct ProfileDataUpdateView: View {
     }
 
     private func updateDataToServer() {
-        // Pobranie user_id i session_id z UserDefaults
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
               let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
-            print("Brak wymaganych danych (user_id lub session_id) w UserDefaults")
+            print("Required data (user_id or session_id) is missing in UserDefaults")
             return
         }
         
-        // Walidacja danych wejściowych
-        guard !gender.isEmpty,
-              !age.isEmpty, Int(age) != nil,
-              !weight.isEmpty, Int(weight) != nil,
-              !height.isEmpty, Int(height) != nil,
-              !bmr.isEmpty, Int(bmr) != nil,
-              !tdee.isEmpty, Int(tdee) != nil else {
-            alertMessage = "Wszystkie pola muszą być poprawnie wypełnione."
+        var userData: [String: Any] = ["userId": userId]
+        
+        if !gender.isEmpty {
+            userData["gender"] = gender
+        }
+        if let ageInt = Int(age), !age.isEmpty {
+            userData["age"] = ageInt
+        }
+        if let weightInt = Int(weight), !weight.isEmpty {
+            userData["weight"] = weightInt
+        }
+        if let heightInt = Int(height), !height.isEmpty {
+            userData["height"] = heightInt
+        }
+        
+        // Wysyłanie aktywności tylko jeśli użytkownik nie wybrał "Choose your activity"
+        if selectedActivityIndex > 0 && selectedActivityIndex < activityLevels.count {
+            userData["activity"] = activityLevels[selectedActivityIndex].1
+        }
+        
+        if userData.keys.count == 1 { // Jeśli zawiera tylko "userId"
+            print("No data to update")
+            alertMessage = languageManager.localizedString(forKey: "updatealert")
             showAlert = true
             return
         }
         
-        // Budowanie URL z query (user_id)
-        var urlComponents = URLComponents(string: "http://192.168.1.20:8000/health/users")
+        var urlComponents = URLComponents(string: "http://192.168.1.22:8000/health/users")
         urlComponents?.queryItems = [URLQueryItem(name: "userId", value: userId)]
         
         guard let url = urlComponents?.url else {
-            print("Nieprawidłowy URL")
+            print("Invalid URL")
             return
         }
         
-        // Przygotowanie ciała żądania z danymi użytkownika
-        let body: [String: Any] = [
-            "user": [
-                "userId": userId,
-                "gender": gender,
-                "age": Int(age) ?? 0,
-                "weight": Int(weight) ?? 0,
-                "height": Int(height) ?? 0,
-                "bmr": Int(bmr) ?? 0,
-                "tdee": Int(tdee) ?? 0
-            ]
-        ]
+        let body: [String: Any] = ["user": userData]
         
         var request = URLRequest(url: url)
-        request.httpMethod = "PUT" // Zmiana metody na PUT
+        request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(sessionId, forHTTPHeaderField: "session-id") // Dodanie session_id do nagłówka
+        request.setValue(sessionId, forHTTPHeaderField: "session-id")
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Wysyłanie danych na serwer: \(jsonString)")
+                print("Data sent to the server: \(jsonString)")
             }
         } catch {
-            print("Błąd przy kodowaniu danych: \(error.localizedDescription)")
+            print("Data encoding error: \(error.localizedDescription)")
             return
         }
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("Błąd przy wysyłaniu danych: \(error.localizedDescription)")
+                print("Error while sending data: \(error.localizedDescription)")
                 return
             }
             
             if let httpResponse = response as? HTTPURLResponse {
-                print("Odpowiedź serwera, kod statusu: \(httpResponse.statusCode)")
-                
-                if httpResponse.statusCode == 200 {
-                    print("Dane zostały pomyślnie zaktualizowane.")
-                    
-                    DispatchQueue.main.async {
-                        // Wyświetlenie alertu po sukcesie
-                        self.showSuccessAlert = true
-                    }
-                } else {
-                    print("Wystąpił błąd przy aktualizacji danych, kod: \(httpResponse.statusCode)")
-                }
+                print("Server response - Status code: \(httpResponse.statusCode)")
             }
             
-            if let data = data,
-               let responseString = String(data: data, encoding: .utf8) {
-                print("Odpowiedź serwera: \(responseString)")
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                print("Server response: \(responseString)")
+            } else {
+                print("No data in server response")
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.showSuccessAlert = true
+                }
             }
         }.resume()
     }
-
-
-
-
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
-//struct ProfilDataUpdateView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ProfileDataUpdateView(
-//            userId: .StringLiteralType(""),
-//            sessionId: .StringLiteralType(""),
-//            loggedInUsername: .constant(nil),
-//            isLoggedIn: .constant(false),
-//            showWelcomeAlert: .constant(false),
-//            username: .constant(""),
-//            password: .constant(""),
-//            rememberMe: .constant(false)
-//        )
-//        .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
-//        .environmentObject(LocalizationManager())
-//    }
-//}
+struct ProfilDataUpdateView_Previews: PreviewProvider {
+    static var previews: some View {
+        ProfileDataUpdateView(
+        )
+        .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
+        .environmentObject(LocalizationManager())
+    }
+}
 

@@ -13,6 +13,8 @@ struct ChangePasswordView: View {
     @Environment(\.presentationMode) var presentationMode // Obsługa cofania
     @EnvironmentObject var webSocketManager: WebSocketManager
     @EnvironmentObject var languageManager: LocalizationManager
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
 
     var body: some View {
         ZStack{
@@ -41,12 +43,12 @@ struct ChangePasswordView: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -59,11 +61,13 @@ struct ChangePasswordView: View {
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
         }
+
     }
     
     var contenView: some View {
         VStack(spacing: 20) {
-            Text("Password change \nfor \n\(username)")
+            Text(String(format: languageManager.localizedString(forKey: "password_change_for_user"), username))
+
                 .font(
                 Font.custom("Roboto Mono", size: 32)
                 .weight(.bold)
@@ -76,7 +80,7 @@ struct ChangePasswordView: View {
             Group{
                 ZStack(alignment: .leading) {
                     if resetCode.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                        Text("Reset code")
+                        Text(languageManager.localizedString(forKey: "resetcode"))
                             .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
                             .font(.system(size: 16, weight: .light, design: .monospaced))
                             .foregroundColor(.white)
@@ -88,7 +92,7 @@ struct ChangePasswordView: View {
                 
                 ZStack(alignment: .leading) {
                     if newPassword.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                        Text("New password")
+                        Text(languageManager.localizedString(forKey: "newpassword"))
                             .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
                             .font(.system(size: 16, weight: .light, design: .monospaced))
                             .foregroundColor(.white)
@@ -99,7 +103,7 @@ struct ChangePasswordView: View {
                 
                 ZStack(alignment: .leading) {
                     if confirmPassword.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                        Text("Repeat new password")
+                        Text(languageManager.localizedString(forKey: "newpasswordrepeat"))
                             .padding(.leading, 17) // Opcjonalne odsunięcie tekstu
                             .font(.system(size: 16, weight: .light, design: .monospaced))
                             .foregroundColor(.white)
@@ -125,7 +129,7 @@ struct ChangePasswordView: View {
                     showMismatchAlert = true
                 }
             }) {
-                Text("Change password")
+                Text(languageManager.localizedString(forKey: "changepasswordbutton"))
                     .font(Font.custom("RobotoMono-Bold", size: 17))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
@@ -150,7 +154,7 @@ struct ChangePasswordView: View {
                             isLoggedIn = false
                             resetLoginData()
                         },
-                        customMessage: "You have managed to succesfully change your password. Save the code in a safe place. This message is displayed once."
+                        customMessage: languageManager.localizedString(forKey: "alertcode")
                     )
                     .frame(width: 325, height: 392)
                     .background(Color.white)
@@ -162,8 +166,8 @@ struct ChangePasswordView: View {
             }
         )
         .alert(isPresented: $showMismatchAlert) {
-            Alert(title: Text("Błąd"),
-                  message: Text("Hasła nie są zgodne. Spróbuj ponownie."),
+            Alert(title: Text(languageManager.localizedString(forKey: "failure_message")),
+                  message: Text(languageManager.localizedString(forKey: "register_failed_message_second")),
                   dismissButton: .default(Text("OK")))
         }
     }
@@ -173,7 +177,7 @@ struct ChangePasswordView: View {
     }
     
     func changePassword() {
-        guard let url = URL(string:"http://192.168.1.20:8000/auth/reset_password") else {
+        guard let url = URL(string:"http://192.168.1.22:8000/auth/reset_password") else {
             print("Invalid URL")
             return
         }
@@ -226,6 +230,24 @@ struct ChangePasswordView: View {
         let loginView = LoginView()
         loginView.resetLoginData()
     }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
 struct ChangePasswordView_Previews: PreviewProvider {
@@ -233,7 +255,7 @@ struct ChangePasswordView_Previews: PreviewProvider {
 
     static var previews: some View {
         ChangePasswordView(
-            username: "TestBart",
+            username: "TestUser",
             isLoggedIn: $isLoggedIn
         )
     }

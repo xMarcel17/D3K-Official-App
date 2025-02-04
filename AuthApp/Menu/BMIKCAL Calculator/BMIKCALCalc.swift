@@ -7,8 +7,14 @@ struct BMIKCALCalc: View {
 
     @State private var showBMICalcView = false // Flaga do wyświetlania BMICalcView
     @State private var showKCALCalcView = false // Flaga do wyświetlania BMICalcView
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
     var body: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             backgroundView
             
             VStack(spacing: 70) {
@@ -21,12 +27,9 @@ struct BMIKCALCalc: View {
                             .frame(width: 315, height: 240)
                             .background(
                                 LinearGradient(
-                                    stops: [
-                                        Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                        Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                    ],
-                                    startPoint: UnitPoint(x: 0.5, y: 0),
-                                    endPoint: UnitPoint(x: 0.5, y: 1)
+                                    gradient: Gradient(colors: [topColor, bottomColor]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
                                 )
                             )
                             .cornerRadius(40)
@@ -37,7 +40,7 @@ struct BMIKCALCalc: View {
                             .frame(width: 257, height: 135)
                             .opacity(0.15)
                         
-                        Text("BMI\nCalculator")
+                        Text(languageManager.localizedString(forKey: "bmicalc"))
                             .font(
                                 Font.custom("Roboto Mono", size: 40)
                                     .weight(.bold)
@@ -58,12 +61,9 @@ struct BMIKCALCalc: View {
                             .frame(width: 315, height: 240)
                             .background(
                                 LinearGradient(
-                                    stops: [
-                                        Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                        Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                    ],
-                                    startPoint: UnitPoint(x: 0.5, y: 0),
-                                    endPoint: UnitPoint(x: 0.5, y: 1)
+                                    gradient: Gradient(colors: [topColor, bottomColor]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
                                 )
                             )
                             .cornerRadius(40)
@@ -74,7 +74,7 @@ struct BMIKCALCalc: View {
                             .frame(width: 150, height: 194)
                             .opacity(0.15)
                         
-                        Text("Calories\nCalculator")
+                        Text(languageManager.localizedString(forKey: "kcalcalc"))
                             .font(
                                 Font.custom("Roboto Mono", size: 40)
                                     .weight(.bold)
@@ -86,6 +86,11 @@ struct BMIKCALCalc: View {
                 }
             }
             .shadow(radius: 10)
+            // Przy pojawieniu się widoku wczytujemy wartość z UserDefaults
+            .onAppear {
+                let userTheme = UserDefaults.standard.string(forKey: "appTheme") ?? "Theme1"
+                self.currentTheme = userTheme
+            }
             
             // Custom back button in the top-left corner
             HStack {
@@ -129,6 +134,24 @@ struct BMIKCALCalc: View {
                 .offset(x: -35)
         }
     }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
 struct BMIKCALCalc_Previews: PreviewProvider {
@@ -138,10 +161,3 @@ struct BMIKCALCalc_Previews: PreviewProvider {
             .environmentObject(LocalizationManager()) // Dodano dla podglądu
     }
 }
-
-
-//struct BMIKCALCalc_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BMIKCALCalc()
-//    }
-//}

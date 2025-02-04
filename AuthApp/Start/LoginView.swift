@@ -1,6 +1,11 @@
 import SwiftUI
 
 struct LoginView: View {
+    // Testowe zmienne
+    var usernameTest: String? = nil
+    var passwordTest: String? = nil
+    var rememberMeTest: Bool = false
+    
     @EnvironmentObject var languageManager: LocalizationManager
     @EnvironmentObject var webSocketManager: WebSocketManager
 
@@ -17,6 +22,8 @@ struct LoginView: View {
     @State internal var rememberMe = false
     @State internal var showLanguageSelection = false
     @State internal var isUserExisting = false
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
     
     var body: some View {
         if isLoggedIn && isUserExisting {
@@ -55,11 +62,8 @@ struct LoginView: View {
             }
             
             .alert(isPresented: $showAlert) {
-                Alert(title: Text("Notification"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                Alert(title: Text(languageManager.localizedString(forKey: "login_failed")), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 
-            }
-            .alert(isPresented: $showLogoutAlert) {
-                Alert(title: Text("Notification"), message: Text("Successfully logged out!"), dismissButton: .default(Text("OK")))
             }
             .onAppear {
                 if !UserDefaults.standard.bool(forKey: "isRemembered") {
@@ -81,12 +85,12 @@ struct LoginView: View {
     
     var backgroundView: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -99,13 +103,15 @@ struct LoginView: View {
                 .frame(width: 600, height: 600)
                 .offset(x: -35)
             
-            Image("AppIconTransparent")
+            Image("Logo")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 300, height: 300)
                 .clipped()
                 .padding(.bottom, 480)
+                .shadow(radius: 10)
         }
+
     }
 
     var contentView: some View {
@@ -118,10 +124,11 @@ struct LoginView: View {
                 
 
             VStack(spacing: 20) {
-                Text("Login Account")
+                Text(languageManager.localizedString(forKey: "login_account_header"))
                     .font(Font.custom("RobotoMono-Bold", size: 28))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
+                    .accessibilityIdentifier("loginAccountIdentifier")
                 
 
                 ZStack(alignment: .leading) {
@@ -167,9 +174,10 @@ struct LoginView: View {
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                 }
                 .padding()
+                .accessibilityIdentifier("rememberMeToggle")
 
                 Button(action: {
-                    login()
+                    login(username: username, password: password)
                 }) {
                     Text(languageManager.localizedString(forKey: "login_button"))
                         .font(Font.custom("RobotoMono-Bold", size: 16))
@@ -197,7 +205,7 @@ struct LoginView: View {
                         .environmentObject(webSocketManager)
                         .environmentObject(languageManager)
                 ) {
-                    Text(languageManager.localizedString(forKey: "register_button"))
+                    Text(languageManager.localizedString(forKey: "register_title"))
                         .font(Font.custom("RobotoMono-Bold", size: 16))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -215,6 +223,7 @@ struct LoginView: View {
                         )
                         .cornerRadius(100.0)
                 }
+                .accessibilityIdentifier("registrationViewButton")
             }
             .padding()
             .frame(maxWidth: 321, maxHeight: 436)
@@ -240,14 +249,15 @@ struct LoginView: View {
             .padding()
             .offset(y: 250)
             .shadow(radius: 10)
+            .accessibilityIdentifier("languageSelectionButton") // Dodano identyfikator
         }
         .offset(y: 110)
     }
     
-    func login() {
+    func login(username: String, password: String, using session: URLSession = URLSession.shared) {
         print("Login button tapped")
         
-        guard let url = URL(string: "http://192.168.1.20:8000/auth/login") else {
+        guard let url = URL(string: "http://192.168.1.22:8000/auth/login") else {
             print("Invalid URL")
             return
         }
@@ -265,80 +275,98 @@ struct LoginView: View {
             return
         }
 
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        session.dataTask(with: request) { data, response, error in
             if let error = error {
                 DispatchQueue.main.async {
-                    self.alertMessage = "Login failed: \(error.localizedDescription)"
+                    self.alertMessage = languageManager.localizedString(forKey: "login_failed_message")
                     self.showAlert = true
                 }
                 print("Login failed with error: \(error.localizedDescription)")
                 return
             }
 
-            if let httpResponse = response as? HTTPURLResponse {
-                print("Received HTTP response: \(httpResponse.statusCode)")
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("No valid HTTP response received")
+                DispatchQueue.main.async {
+                    self.alertMessage = languageManager.localizedString(forKey: "login_failed_message")
+                    self.showAlert = true
+                }
+                return
+            }
+
+            print("Received HTTP response: \(httpResponse.statusCode)")
+            
+            // JEŻELI ODPOWIEDŹ JEST 200 (OK) -> LOGOWANIE UDANE
+            if httpResponse.statusCode == 200 {
+                // --- Twoja logika przetwarzania poprawnego logowania ---
+                if let sessionId = httpResponse.value(forHTTPHeaderField: "session_id") {
+                    UserDefaults.standard.set(sessionId, forKey: "session_id")
+                    UserDefaults.standard.set(username, forKey: "savedUsername")
+                    UserDefaults.standard.set(password, forKey: "savedPassword")
+                    print("Session ID saved: \(sessionId)")
+                }
                 
-                if httpResponse.statusCode == 401 {
-                    DispatchQueue.main.async {
-                        self.alertMessage = "Incorrect login details. Please try again."
-                        self.showAlert = true
-                    }
-                } else if httpResponse.statusCode == 200 {
+                if let data = data,
+                   let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let userId = json["user_id"] as? String {
+                    UserDefaults.standard.set(userId, forKey: "user_id")
+                    print("User ID saved: \(userId)")
+                    
                     if let sessionId = httpResponse.value(forHTTPHeaderField: "session_id") {
                         UserDefaults.standard.set(sessionId, forKey: "session_id")
                         print("Session ID saved: \(sessionId)")
-                    }
-                    
-                    if let data = data,
-                       let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                       let userId = json["user_id"] as? String {
-                        UserDefaults.standard.set(userId, forKey: "user_id")
-                        print("User ID saved: \(userId)")
                         
-                        if let sessionId = httpResponse.value(forHTTPHeaderField: "session_id") {
-                            UserDefaults.standard.set(sessionId, forKey: "session_id")
-                            print("Session ID saved: \(sessionId)")
-                            
-                            DispatchQueue.main.async {
-                                webSocketManager.connect(withUserId: userId, sessionId: sessionId) // Połącz z WebSocket
+                        DispatchQueue.main.async {
+                            // Jeśli nie jesteśmy w trybie testowym, łączymy się przez WebSocket
+                            if ProcessInfo.processInfo.environment["UITestMode"] != "true" {
+                                webSocketManager.connect(withUserId: userId, sessionId: sessionId)
                             }
                         }
                     }
-                    
-                    if rememberMe {
-                        UserDefaults.standard.set(username, forKey: "savedUsername")
-                        UserDefaults.standard.set(password, forKey: "savedPassword")
-                        UserDefaults.standard.set(true, forKey: "isRemembered")
-                    } else {
-                        UserDefaults.standard.removeObject(forKey: "savedUsername")
-                        UserDefaults.standard.removeObject(forKey: "savedPassword")
-                        UserDefaults.standard.set(false, forKey: "isRemembered")
-                    }
-
-                    DispatchQueue.main.async {
-                        self.verifyUser {
-                            self.errorMessage = nil
-                            self.loggedInUsername = self.username
-                            self.isLoggedIn = true
-                            self.showWelcomeAlert = true
-                        }
-                    }
+                }
+                
+                if rememberMe || rememberMeTest {
+                    UserDefaults.standard.set(true, forKey: "isLoggedInForTest")
+                    UserDefaults.standard.set(username, forKey: "savedUsername")
+                    UserDefaults.standard.set(password, forKey: "savedPassword")
+                    UserDefaults.standard.set(true, forKey: "isRemembered")
                 } else {
-                    DispatchQueue.main.async {
-                        self.alertMessage = "Login failed with status code \(httpResponse.statusCode)"
-                        self.showAlert = true
+                    UserDefaults.standard.set(true, forKey: "isLoggedInForTest")
+                    UserDefaults.standard.removeObject(forKey: "savedUsername")
+                    UserDefaults.standard.removeObject(forKey: "savedPassword")
+                    UserDefaults.standard.set(false, forKey: "isRemembered")
+                }
+
+                DispatchQueue.main.async {
+                    self.verifyUser {
+                        self.errorMessage = nil
+                        self.loggedInUsername = self.username
+                        self.isLoggedIn = true
+                        self.showWelcomeAlert = true
                     }
                 }
+                
             } else {
-                print("No valid HTTP response received")
+                // JEŻELI ODPOWIEDŹ ≠ 200 -> POKAŻ ALERT
+                DispatchQueue.main.async {
+                    self.alertMessage = languageManager.localizedString(forKey: "login_failed_message")
+                    self.showAlert = true
+                }
             }
+            
         }.resume()
     }
 
+
     func loadRememberedCredentials() {
+        UserDefaults.standard.set(false, forKey: "isUsernameLoaded")
+        UserDefaults.standard.set(false, forKey: "isPasswordLoaded")
+        
         if UserDefaults.standard.bool(forKey: "isRemembered") {
             self.username = UserDefaults.standard.string(forKey: "savedUsername") ?? ""
+            UserDefaults.standard.set(true, forKey: "isUsernameLoaded")
             self.password = UserDefaults.standard.string(forKey: "savedPassword") ?? ""
+            UserDefaults.standard.set(true, forKey: "isPasswordLoaded")
             self.rememberMe = true
         }
     }
@@ -356,10 +384,11 @@ struct LoginView: View {
         self.isUserExisting = false
     }
     
-    func verifyUser(completion: @escaping () -> Void) {
+    func verifyUser(completion: @escaping () -> Void, using session: URLSession = URLSession.shared)  {
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
-              let url = URL(string: "http://192.168.1.20:8000/health/users/?userId=\(userId)") else {
+              let url = URL(string: "http://192.168.1.22:8000/health/users/?userId=\(userId)") else {
             print("Invalid URL or userId not available")
+            completion()
             return
         }
 
@@ -368,20 +397,40 @@ struct LoginView: View {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(UserDefaults.standard.string(forKey: "session_id") ?? "", forHTTPHeaderField: "session-id")
 
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        session.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Request failed with error: \(error.localizedDescription)")
+                completion()
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse {
                 DispatchQueue.main.async {
                     self.isUserExisting = httpResponse.statusCode == 200 || httpResponse.statusCode == 201
-                    print("User \(self.isUserExisting ? "exists" : "does not exist") in the system.")
+                    UserDefaults.standard.set(httpResponse.statusCode == 200 || httpResponse.statusCode == 201, forKey: "httpResponseForVerifyUser")
+                    print("User \(UserDefaults.standard.bool(forKey: "httpResponseForVerifyUser") ? "exists" : "does not exist") in the system.")
                     completion()
                 }
             }
         }.resume()
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
     }
 }
 
@@ -400,12 +449,24 @@ extension View {
     }
 }
 
-
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(
-        )
-        .environmentObject(WebSocketManager()) // Jeśli wymaga `WebSocketManager`
-        .environmentObject(LocalizationManager())
+        // Możesz użyć Group, jeśli chcesz kilka wariantów (np. Light/Dark Mode)
+        Group {
+            NavigationView {
+                LoginView()
+                    .environmentObject(WebSocketManager())      // Podstawowy obiekt
+                    .environmentObject(LocalizationManager())   // Podstawowy obiekt
+            }
+            .previewDisplayName("Light Mode")
+
+            NavigationView {
+                LoginView()
+                    .environmentObject(WebSocketManager())
+                    .environmentObject(LocalizationManager())
+            }
+            .previewDisplayName("Dark Mode")
+            .preferredColorScheme(.dark)
+        }
     }
 }

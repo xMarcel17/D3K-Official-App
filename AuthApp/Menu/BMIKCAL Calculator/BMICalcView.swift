@@ -19,7 +19,9 @@ struct BMICalcView: View {
     
     @State private var calculatedBMI: Float = 0.0 // Wynik PPM do przekazania do BMIOutcome
     @State private var status = " " // Obliczony status
-        
+    
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     
     var body: some View {
         ZStack{
@@ -43,6 +45,13 @@ struct BMICalcView: View {
             .padding(.horizontal)
             .padding(20) // Adjust padding as needed
             .padding(.top, -400) // Adjust padding as needed
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text(languageManager.localizedString(forKey: "warning")),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
     
@@ -68,7 +77,7 @@ struct BMICalcView: View {
     
     var contentView: some View {
         VStack (spacing: 35){
-            Text("BMI\nCalculator")
+            Text(languageManager.localizedString(forKey: "bmicalc"))
               .font(
                 Font.custom("Roboto Mono", size: 36)
                   .weight(.bold)
@@ -80,7 +89,7 @@ struct BMICalcView: View {
             VStack (spacing: 26){
                 HStack (spacing: 47){
                     VStack{
-                        Text("Weight(kg)")
+                        Text(languageManager.localizedString(forKey: "weightkg"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -101,7 +110,7 @@ struct BMICalcView: View {
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
                             if weight.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                                Text("Weight")
+                                Text(languageManager.localizedString(forKey: "weight"))
                                     .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                             }
@@ -111,7 +120,7 @@ struct BMICalcView: View {
                     
                     
                     VStack{
-                        Text("Height(cm)")
+                        Text(languageManager.localizedString(forKey: "heightcm"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -133,7 +142,7 @@ struct BMICalcView: View {
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
                             if height.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                                Text("Height")
+                                Text(languageManager.localizedString(forKey: "height"))
                                     .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                             }
@@ -144,7 +153,7 @@ struct BMICalcView: View {
                 .frame(width: 337, height: 106)
                 
                 VStack{
-                    Text("Age")
+                    Text(languageManager.localizedString(forKey: "age_placeholder"))
                       .font(
                         Font.custom("Roboto Mono", size: 20)
                           .weight(.bold)
@@ -166,7 +175,7 @@ struct BMICalcView: View {
                             .font(.system(size: 36, weight: .semibold, design: .monospaced))
                             .shadow(radius: 5)
                         if age.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                            Text("Age")
+                            Text(languageManager.localizedString(forKey: "age_placeholder"))
                                 .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                         }
@@ -179,7 +188,7 @@ struct BMICalcView: View {
                 Button(action: {
                     calculateBMI()
                 }) {
-                    Text("CALCULATE")
+                    Text(languageManager.localizedString(forKey: "calculate"))
                         .font(Font.custom("RobotoMono-Bold", size: 24))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -218,6 +227,12 @@ struct BMICalcView: View {
     
     // Funkcja obliczająca PPM
     func calculateBMI() {
+        if weight.isEmpty || height.isEmpty || age.isEmpty {
+            alertMessage = languageManager.localizedString(forKey: "bmialert")
+            showAlert = true
+            return
+        }
+        
         guard let weightValue = Float(weight),
               let heightValue = Float(height),
               let ageValue = Float(age) else {
@@ -251,16 +266,16 @@ struct BMICalcView: View {
         let upperBound = normalRange.upperBound
         
         if (calculatedBMI < lowerBound){
-            status = "Underweight"
+            status = languageManager.localizedString(forKey: "underweight")
         }
         else if ((calculatedBMI > lowerBound) && (calculatedBMI < upperBound)){
-            status = "Normal"
+            status = languageManager.localizedString(forKey: "normal")
         }
         else if (calculatedBMI > upperBound) && (calculatedBMI < 31){
-            status = "Overweight"
+            status = languageManager.localizedString(forKey: "overweight")
         }
         else{
-            status = "Obesity"
+            status = languageManager.localizedString(forKey: "obesity")
         }
             
         showBMIoutput = true

@@ -3,12 +3,13 @@ import SwiftUI
 struct BandInfoView: View {
     @EnvironmentObject var bleManager: BLEManager
     @EnvironmentObject var webSocketManager: WebSocketManager
+    @EnvironmentObject var languageManager: LocalizationManager
     
     let onDismiss: () -> Void
 
     var body: some View {
         VStack(spacing: 15) {
-            Text("Band Information")
+            Text(languageManager.localizedString(forKey: "bandinfotitle"))
                 .font(
                   Font.custom("Roboto Mono", size: 28)
                     .weight(.bold)
@@ -18,7 +19,7 @@ struct BandInfoView: View {
 
             VStack(alignment: .center, spacing: 20) {
                 HStack {
-                    Text("Battery level")
+                    Text(languageManager.localizedString(forKey: "batterylevel"))
                         .font(Font.custom("Roboto Mono", size: 20).weight(.bold)) // Nowa czcionka
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                         .padding(.leading)
@@ -35,7 +36,7 @@ struct BandInfoView: View {
   
 
                 HStack {
-                    Text("Firmware version:")
+                    Text(languageManager.localizedString(forKey: "firmwareversion"))
                         .font(Font.custom("Roboto Mono", size: 20).weight(.bold))
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                         .padding(.leading)
@@ -51,7 +52,7 @@ struct BandInfoView: View {
                 .frame(width: 320, height: 56)
 
                 HStack {
-                    Text("Files to send:")
+                    Text(languageManager.localizedString(forKey: "filestosend"))
                         .font(Font.custom("Roboto Mono", size: 20).weight(.bold))
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                         .padding(.leading)

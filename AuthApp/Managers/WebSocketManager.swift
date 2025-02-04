@@ -5,7 +5,7 @@ class WebSocketManager: ObservableObject {
     @Published var showTrainingAlert = false
 
     func connect(withUserId userId: String, sessionId: String) {
-        guard let url = URL(string: "ws://192.168.1.20:8000/socket/connect/\(userId)") else {
+        guard let url = URL(string: "ws://192.168.1.22:8000/socket/connect/\(userId)") else {
             print("Invalid WebSocket URL")
             return
         }

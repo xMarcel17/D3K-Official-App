@@ -15,6 +15,9 @@ struct TrainingsView: View {
     
     @State private var isShowingSingleTraining = false
     
+    @State private var showDeleteConfirmation = false
+    @State private var workoutToDelete: Int? = nil
+    
     var body: some View {
         ZStack{
             backgroundView
@@ -25,6 +28,7 @@ struct TrainingsView: View {
             HStack {
                 Button(action: {
                     presentationMode.wrappedValue.dismiss() // Cofanie do poprzedniego widoku
+                    //zakomentowne dla testow
                 }) {
                     Image("DoubleLeftBlue")
                         .resizable()
@@ -47,6 +51,18 @@ struct TrainingsView: View {
                     .environmentObject(languageManager)
             //zakomentowane dla testow
         }
+        .alert(isPresented: $showDeleteConfirmation) {
+            Alert(
+                title: Text(languageManager.localizedString(forKey: "delete_workout")),
+                message: Text(languageManager.localizedString(forKey: "delete_workout_message")),
+                primaryButton: .destructive(Text(languageManager.localizedString(forKey: "delete"))) {
+                    if let workoutId = workoutToDelete {
+                        deleteWorkout(workoutId: workoutId)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
     
     var backgroundView: some View {
@@ -65,7 +81,7 @@ struct TrainingsView: View {
     
     var contentView: some View {
         ZStack{
-            Text("Trainings")
+            Text(languageManager.localizedString(forKey: "trainings"))
                 .font(
                     Font.custom("Roboto Mono", size: 36)
                         .weight(.bold)
@@ -97,7 +113,16 @@ struct TrainingsView: View {
                                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             }
                             .padding(.leading, 10)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    workoutToDelete = workouts[index].id
+                                    showDeleteConfirmation = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                         }
+                        
                         Rectangle()
                             .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             .frame(width: 301, height: 1)
@@ -105,7 +130,7 @@ struct TrainingsView: View {
                 }
                 
                 HStack {
-                    Button("Previous") {
+                    Button(languageManager.localizedString(forKey: "previous")) {
                         if currentPage > 1 {
                             currentPage -= 1
                             fetchWorkoutData()
@@ -121,7 +146,7 @@ struct TrainingsView: View {
                     
                     Spacer()
                     
-                    Button("Next") {
+                    Button(languageManager.localizedString(forKey: "next")) {
                         currentPage += 1
                         fetchWorkoutData()
                     }
@@ -139,10 +164,42 @@ struct TrainingsView: View {
         }
     }
     
+    func deleteWorkout(workoutId: Int) {
+        guard let userId = UserDefaults.standard.string(forKey: "user_id"),
+              let sessionId = UserDefaults.standard.string(forKey: "session_id"),
+              let url = URL(string: "http://192.168.1.22:8000/health/workouts?userId=\(userId)&workoutId=\(workoutId)") else {
+            print("Invalid URL or missing UserDefaults values")
+            return
+        }
+        
+        print("Sending DELETE request for workoutId: \(workoutId)")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.addValue(sessionId, forHTTPHeaderField: "session-id")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error during DELETE request: \(error.localizedDescription)")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                if let index = workouts.firstIndex(where: { $0.id == workoutId }) {
+                    print("Workout found at index: \(index), removing from list")
+                    workouts.remove(at: index)
+                } else {
+                    print("Workout not found in list")
+                }
+            }
+        }.resume()
+    }
+    
+    
     func fetchWorkoutData() {
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
               let sessionId = UserDefaults.standard.string(forKey: "session_id"),
-              let url = URL(string: "http://192.168.1.20:8000/health/workouts?userId=\(userId)&page=\(currentPage)&limit=\(limitPerPage)") else {
+              let url = URL(string: "http://192.168.1.22:8000/health/workouts?userId=\(userId)&page=\(currentPage)&limit=\(limitPerPage)") else {
             print("Invalid URL or missing UserDefaults values")
             return
         }
@@ -167,7 +224,7 @@ struct TrainingsView: View {
                    let workoutsArray = json["workouts"] as? [[String: Any]] {
 
                     let parsedWorkouts = workoutsArray.compactMap { workout -> (id: Int, type: String, duration: Int, distance: Double, caloriesBurned: Double, avgSteps: Int, avgHeartrate: Double, date: String)? in
-                        guard let id = workout["id"] as? Int,
+                        guard let id = workout["workoutId"] as? Int,
                               let type = workout["workoutType"] as? String,
                               let duration = workout["duration"] as? Int,
                               let distance = workout["distance"] as? Double,

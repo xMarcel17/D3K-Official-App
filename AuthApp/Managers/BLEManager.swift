@@ -2,14 +2,16 @@ import CoreBluetooth
 import SwiftUI
 
 class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    @Published var receivedData: Data = Data() // Przechowujemy dane binarne
+    @Published var receivedData: Data = Data() // Store binary data
     @Published var isConnected = false
     @Published var batteryLevel: Int = 0
     @Published var firmwareVersion: String = ""
     @Published var filesToSend: Int = 0
     @Published var isSubscribed = false
+    
+    static let shared = BLEManager()
 
-    private var messageParts = Data() // Zmienna do przechowywania części wiadomości binarnych
+    private var messageParts = Data() // Store parts of binary messages
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
     var dataCharacteristic: CBCharacteristic?
@@ -33,22 +35,22 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     private let passwordUUID = CBUUID(string: "e2e3f5a4-8c4f-11eb-8dcd-0242ac130004")
     private let privateKeyUUID = CBUUID(string: "e2e3f5a4-8c4f-11eb-8dcd-0242ac130025")
 
-    private var expectedDataSize: Int? // Zmienna do przechowywania rozmiaru oczekiwanych danych
-    private var currentDataSize: Int = 0 // Aktualna liczba odebranych bajtów danych
+    private var expectedDataSize: Int?
+    private var currentDataSize: Int = 0
+    
+    @Published var isDataFetched = false
 
     override init() {
         super.init()
-        //deleteJsonFile() // Usuwanie pliku JSON na początku działania aplikacji
-        //DatabaseManager.shared.clearDatabase() // czyszczenie bazy danych na początku działania aplikacji
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
 
-    // Wymagana metoda CBCentralManagerDelegate
+    // CBCentralManagerDelegate required method
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
-            print("Bluetooth jest włączony")
+            print("Bluetooth is powered on")
         } else {
-            print("Bluetooth nie jest dostępny")
+            print("Bluetooth is not available")
         }
     }
 
@@ -56,8 +58,11 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         centralManager.scanForPeripherals(withServices: [serviceUUID], options: nil)
     }
 
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        print("Znaleziono urządzenie: \(peripheral.name ?? "Brak nazwy")")
+    func centralManager(_ central: CBCentralManager,
+                       didDiscover peripheral: CBPeripheral,
+                       advertisementData: [String: Any],
+                       rssi RSSI: NSNumber) {
+        print("Found device: \(peripheral.name ?? "No name")")
         self.peripheral = peripheral
         self.peripheral?.delegate = self
         centralManager.stopScan()
@@ -65,20 +70,24 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        print("Połączono z urządzeniem: \(peripheral.name ?? "Brak nazwy")")
+        print("Connected to device: \(peripheral.name ?? "No name")")
         isConnected = true
         peripheral.discoverServices([serviceUUID])
         let mtuSize = peripheral.maximumWriteValueLength(for: .withoutResponse)
         print("MTU size after connection: \(mtuSize) bytes")
     }
 
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        print("Nie udało się połączyć z urządzeniem: \(error?.localizedDescription ?? "Brak błędu")")
+    func centralManager(_ central: CBCentralManager,
+                       didFailToConnect peripheral: CBPeripheral,
+                       error: Error?) {
+        print("Failed to connect to device: \(error?.localizedDescription ?? "No error")")
     }
 
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    func centralManager(_ central: CBCentralManager,
+                       didDisconnectPeripheral peripheral: CBPeripheral,
+                       error: Error?) {
         isConnected = false
-        print("Rozłączono z urządzeniem: \(error?.localizedDescription ?? "Brak błędu")")
+        print("Disconnected from device: \(error?.localizedDescription ?? "No error")")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -86,8 +95,15 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             for service in services {
                 if service.uuid == serviceUUID {
                     peripheral.discoverCharacteristics([
-                        characteristicUUID, confirmationUUID, timeSyncUUID,
-                        batteryUUID, firmwareUUID, filesToSendUUID, ssidUUID, passwordUUID, privateKeyUUID
+                        characteristicUUID,
+                        confirmationUUID,
+                        timeSyncUUID,
+                        batteryUUID,
+                        firmwareUUID,
+                        filesToSendUUID,
+                        ssidUUID,
+                        passwordUUID,
+                        privateKeyUUID
                     ], for: service)
                 }
             }
@@ -97,54 +113,54 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         print("MTU size after discovering services: \(mtuSize) bytes")
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral,
+                    didDiscoverCharacteristicsFor service: CBService,
+                    error: Error?) {
         if let characteristics = service.characteristics {
             for characteristic in characteristics {
                 if characteristic.uuid == privateKeyUUID {
-                    print("Odnaleziono charakterystykę Private Key \(characteristic.uuid)")
+                    print("Found Private Key characteristic \(characteristic.uuid)")
                     self.privateKeyCharacteristic = characteristic
-                    sendPrivateKey()    // Wysłanie klucza prywatnego
-                    sleep(1) // Opóźnienie po wysłaniu klucza prywatnego
+                    sendPrivateKey()
+                    sleep(1)
                 } else if characteristic.uuid == characteristicUUID {
-                    print("Odnaleziono charakterystykę danych \(characteristic.uuid)")
+                    print("Found data characteristic \(characteristic.uuid)")
                     self.dataCharacteristic = characteristic
-
-                    // Subskrybuj powiadomienia dla tej charakterystyki
                     peripheral.setNotifyValue(true, for: characteristic)
-
-                    // Dodanie obsługi deskryptora 2902 dla powiadomień
+                    
+                    // Handle descriptor 2902 for notifications
                     if let descriptors = characteristic.descriptors {
                         for descriptor in descriptors where descriptor.uuid == CBUUID(string: "00002902-0000-1000-8000-00805f9b34fb") {
-                            let enableValue = Data([0x01, 0x00]) // Włącz powiadomienia
+                            let enableValue = Data([0x01, 0x00])
                             peripheral.writeValue(enableValue, for: descriptor)
-                            print("Subskrypcja na Notify ustawiona.")
+                            print("Notify subscription set.")
                         }
                     }
                 } else if characteristic.uuid == confirmationUUID {
-                    print("Odnaleziono charakterystykę potwierdzenia \(characteristic.uuid)")
+                    print("Found confirmation characteristic \(characteristic.uuid)")
                     self.confirmationCharacteristic = characteristic
                 } else if characteristic.uuid == timeSyncUUID {
-                    print("Odnaleziono charakterystykę synchronizacji czasu \(characteristic.uuid)")
+                    print("Found time sync characteristic \(characteristic.uuid)")
                     self.timeSyncCharacteristic = characteristic
                 } else if characteristic.uuid == batteryUUID {
-                    print("Odnaleziono charakterystykę poziomu baterii \(characteristic.uuid)")
+                    print("Found battery level characteristic \(characteristic.uuid)")
                     self.batteryCharacteristic = characteristic
                 } else if characteristic.uuid == firmwareUUID {
-                    print("Odnaleziono charakterystykę wersji firmware \(characteristic.uuid)")
+                    print("Found firmware version characteristic \(characteristic.uuid)")
                     self.firmwareCharacteristic = characteristic
                 } else if characteristic.uuid == filesToSendUUID {
-                    print("Odnaleziono charakterystykę liczby plików do przesłania \(characteristic.uuid)")
+                    print("Found 'files to send' characteristic \(characteristic.uuid)")
                     self.filesToSendCharacteristic = characteristic
                 } else if characteristic.uuid == ssidUUID {
-                    print("Odnaleziono charakterystykę SSID \(characteristic.uuid)")
+                    print("Found SSID characteristic \(characteristic.uuid)")
                     self.ssidCharacteristic = characteristic
                 } else if characteristic.uuid == passwordUUID {
-                    print("Odnaleziono charakterystykę hasła WiFi \(characteristic.uuid)")
+                    print("Found WiFi password characteristic \(characteristic.uuid)")
                     self.passwordCharacteristic = characteristic
                 }
             }
 
-            // Wywołanie readValue dla odpowiednich charakterystyk po zakończeniu pętli
+            // Read values for certain characteristics
             if let batteryCharacteristic = self.batteryCharacteristic {
                 peripheral.readValue(for: batteryCharacteristic)
             }
@@ -157,142 +173,158 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral,
+                    didUpdateValueFor characteristic: CBCharacteristic,
+                    error: Error?) {
         if let data = characteristic.value, characteristic == dataCharacteristic {
             handleDataCharacteristicUpdate(data: data)
         } else if characteristic == batteryCharacteristic, let data = characteristic.value {
             batteryLevel = Int(data[0])
-            print("Poziom baterii: \(batteryLevel)%")
+            print("Battery level: \(batteryLevel)%")
         } else if characteristic == firmwareCharacteristic, let data = characteristic.value {
-            firmwareVersion = String(data: data, encoding: .utf8) ?? "Nieznana"
-            print("Wersja firmware: \(firmwareVersion)")
+            firmwareVersion = String(data: data, encoding: .utf8) ?? "Unknown"
+            print("Firmware version: \(firmwareVersion)")
         } else if characteristic == filesToSendCharacteristic, let data = characteristic.value {
             filesToSend = Int(data[0])
-            print("Liczba plików do przesłania: \(filesToSend)")
+            print("Number of files to send: \(filesToSend)")
         }
     }
-
-    
-
 
     private func handleDataCharacteristicUpdate(data: Data?) {
         guard let data = data else { return }
 
-        // Definicja końcowego znacznika danych
         let endMessage = Data(repeating: 0, count: 16)
-
-        // Sprawdzamy, czy zakończono odbieranie danych
+        
+        // Check if data reception is finished
         if data == endMessage {
             if let expectedSize = expectedDataSize {
-                print("Odebrano dane: \(currentDataSize) bajtów.")
-                print("Przewidywana wielkość danych: \(expectedSize) bajtów.")
+                print("Received data: \(currentDataSize) bytes.")
+                print("Expected data size: \(expectedSize) bytes.")
                 let difference = expectedSize - currentDataSize
-                print("Różnica między przewidywaną a odebraną wielkością: \(difference) bajtów.")
+                print("Difference between expected and received size: \(difference) bytes.")
             } else {
-                print("Odebrano dane, ale brak przewidywanej wielkości danych.")
+                print("Data received, but no expected data size was provided.")
             }
 
             if let expectedSize = expectedDataSize, currentDataSize == expectedSize {
                 self.receivedData = self.messageParts
-
-                // Przetwarzanie i zapisanie danych
                 processReceivedData()
             } else {
-                print("Błąd: Rozmiar odebranych danych nie zgadza się z przewidywaną wielkością.")
+                print("Error: The size of the received data does not match the expected size.")
             }
             
-            // Automatyczne odsubskrybowanie
             stopNotifications()
-            print("Automatyczne wyłączenie subskrypcji po zakończeniu transmisji.")
+            print("Notify subscription automatically disabled after transmission.")
             return
         } else {
-            //print("Odebrano partię danych: \(data.count) bajtów")
-            
-            // Jeśli przewidywana wielkość danych nie jest jeszcze ustawiona, odczytujemy pierwsze 4 bajty jako rozmiar
+            // If the expected data size is not set yet, read the first 4 bytes as size
             if expectedDataSize == nil, data.count >= 4 {
-                // Odczytujemy pierwsze 4 bajty jako przewidywany rozmiar danych (little-endian) i pomijamy je
-                expectedDataSize = Int(data[0]) | Int(data[1]) << 8 | Int(data[2]) << 16 | Int(data[3]) << 24
-                print("Przewidywana wielkość wysyłanych danych: \(expectedDataSize ?? 0) bajtów")
+                expectedDataSize = Int(data[0])
+                    | Int(data[1]) << 8
+                    | Int(data[2]) << 16
+                    | Int(data[3]) << 24
+                print("Expected data size: \(expectedDataSize ?? 0) bytes")
                 
-                // Po ustaleniu przewidywanej wielkości danych, dodajemy tylko faktyczne dane (poza pierwszymi 4 bajtami)
                 let actualData = data.dropFirst(4)
                 messageParts.append(actualData)
                 currentDataSize += actualData.count
             } else {
-                // Gdy rozmiar danych jest już ustawiony, dodajemy każdą odebraną partię danych
                 messageParts.append(data)
                 currentDataSize += data.count
             }
         }
     }
 
-
-
-    
     private func processReceivedData() {
         var offset = 0
 
-        // Pobieranie timestamp (kolejne 4 bajty, little-endian)
-        let timestamp = Int(messageParts[offset]) | Int(messageParts[offset + 1]) << 8 | Int(messageParts[offset + 2]) << 16 | Int(messageParts[offset + 3]) << 24
+        // Fetch timestamp (next 4 bytes, little-endian)
+        let timestamp = Int(messageParts[offset])
+            | Int(messageParts[offset + 1]) << 8
+            | Int(messageParts[offset + 2]) << 16
+            | Int(messageParts[offset + 3]) << 24
         offset += 4
-        print("Pobrany timestamp: \(timestamp)")
+        print("Fetched timestamp: \(timestamp)")
 
-        // Przetwarzanie reszty danych cyklicznie
+        // Process the rest of the data in a loop
         while offset + 14 <= messageParts.count {
-            // Pobieranie ir (4 bajty, little-endian, signed)
-            let ir = Int32(bitPattern: UInt32(messageParts[offset]) | UInt32(messageParts[offset + 1]) << 8 | UInt32(messageParts[offset + 2]) << 16 | UInt32(messageParts[offset + 3]) << 24)
+            let ir = Int32(bitPattern:
+                UInt32(messageParts[offset])
+                | UInt32(messageParts[offset + 1]) << 8
+                | UInt32(messageParts[offset + 2]) << 16
+                | UInt32(messageParts[offset + 3]) << 24
+            )
             offset += 4
 
-            // Pobieranie red (4 bajty, little-endian, signed)
-            let red = Int32(bitPattern: UInt32(messageParts[offset]) | UInt32(messageParts[offset + 1]) << 8 | UInt32(messageParts[offset + 2]) << 16 | UInt32(messageParts[offset + 3]) << 24)
+            let red = Int32(bitPattern:
+                UInt32(messageParts[offset])
+                | UInt32(messageParts[offset + 1]) << 8
+                | UInt32(messageParts[offset + 2]) << 16
+                | UInt32(messageParts[offset + 3]) << 24
+            )
             offset += 4
 
-            // Pobieranie accX (2 bajty, little-endian, signed)
-            let accX = Int16(bitPattern: UInt16(messageParts[offset]) | UInt16(messageParts[offset + 1]) << 8)
+            let accX = Int16(bitPattern:
+                UInt16(messageParts[offset])
+                | UInt16(messageParts[offset + 1]) << 8
+            )
             offset += 2
 
-            // Pobieranie accY (2 bajty, little-endian, signed)
-            let accY = Int16(bitPattern: UInt16(messageParts[offset]) | UInt16(messageParts[offset + 1]) << 8)
+            let accY = Int16(bitPattern:
+                UInt16(messageParts[offset])
+                | UInt16(messageParts[offset + 1]) << 8
+            )
             offset += 2
 
-            // Pobieranie accZ (2 bajty, little-endian, signed)
-            let accZ = Int16(bitPattern: UInt16(messageParts[offset]) | UInt16(messageParts[offset + 1]) << 8)
+            let accZ = Int16(bitPattern:
+                UInt16(messageParts[offset])
+                | UInt16(messageParts[offset + 1]) << 8
+            )
             offset += 2
 
-            // Zapis do bazy danych z wykorzystaniem tego samego timestamp
-            DatabaseManager.shared.insertData(timestamp: timestamp, ir: Int(ir), red: Int(red), accX: Int(accX), accY: Int(accY), accZ: Int(accZ))
+            DatabaseManager.shared.insertData(
+                timestamp: timestamp,
+                ir: Int(ir),
+                red: Int(red),
+                accX: Int(accX),
+                accY: Int(accY),
+                accZ: Int(accZ)
+            )
         }
 
-        // Sprawdzenie zgodności rozmiaru danych
         if offset == expectedDataSize {
-            print("Dane zostały przetworzone i zapisane do bazy danych.")
+            print("Data has been processed and saved to the database.")
             sendConfirmation()
             sendTimeSync()
             DatabaseManager.shared.exportDataToJSON()
-            // Zapisanie danych binarnych do pliku .bin
             saveBinaryFile(content: messageParts)
+            
+            DispatchQueue.main.async {
+                self.isDataFetched = true
+            }
         } else {
-            print("Ostrzeżenie: rozmiar przetworzonych danych nie zgadza się z przewidywanym rozmiarem.")
+            print("Warning: The size of the processed data does not match the expected size.")
         }
     }
 
-
     func sendConfirmation() {
-        guard let confirmationCharacteristic = confirmationCharacteristic, let peripheral = peripheral else {
-            print("Nie znaleziono charakterystyki do wysłania potwierdzenia.")
+        guard let confirmationCharacteristic = confirmationCharacteristic,
+              let peripheral = peripheral else {
+            print("Confirmation characteristic not found.")
             return
         }
         
         let confirmationMessage = "OK"
         if let data = confirmationMessage.data(using: .utf8) {
             peripheral.writeValue(data, for: confirmationCharacteristic, type: .withResponse)
-            print("Wysłano wiadomość 'OK' do urządzenia.")
+            print("Sent 'OK' message to the device.")
         }
     }
 
     func sendTimeSync() {
-        guard let timeSyncCharacteristic = timeSyncCharacteristic, let peripheral = peripheral else {
-            print("Nie znaleziono charakterystyki do wysłania czasu.")
+        guard let timeSyncCharacteristic = timeSyncCharacteristic,
+              let peripheral = peripheral else {
+            print("Time sync characteristic not found.")
             return
         }
         
@@ -300,129 +332,124 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         let timeData = withUnsafeBytes(of: currentUnixTime.littleEndian, Array.init)
 
         peripheral.writeValue(Data(timeData), for: timeSyncCharacteristic, type: .withResponse)
-        print("Wysłano czas UNIX \(currentUnixTime) do urządzenia.")
+        print("Sent UNIX time \(currentUnixTime) to the device.")
     }
     
-    // Funkcja wysyłająca SSID i hasło
     func sendWiFiCredentials(ssid: String, password: String) {
         guard isConnected else {
-            print("Nie połączono z urządzeniem.")
+            print("Not connected to the device.")
             return
         }
 
         guard let ssidCharacteristic = ssidCharacteristic else {
-            print("Nie znaleziono charakterystyki SSID.")
+            print("SSID characteristic not found.")
             return
         }
 
         guard let passwordCharacteristic = passwordCharacteristic else {
-            print("Nie znaleziono charakterystyki hasła WiFi.")
+            print("WiFi password characteristic not found.")
             return
         }
 
-        // Wysyłanie SSID
+        // Send SSID
         if let ssidData = ssid.data(using: .utf8) {
             peripheral?.writeValue(ssidData, for: ssidCharacteristic, type: .withResponse)
-            print("Wysłano SSID: \(ssid)")
+            print("SSID has been sent: \(ssid)")
         }
 
-        // Opóźnienie przed wysłaniem hasła
+        // Small delay before sending the password
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             if let passwordData = password.data(using: .utf8) {
                 self.peripheral?.writeValue(passwordData, for: passwordCharacteristic, type: .withResponse)
-                print("Wysłano hasło WiFi.")
+                print("WiFi password has been sent.")
             }
         }
     }
     
-    // Funkcja wysyłająca klucz prywatny po połączeniu
     private func sendPrivateKey() {
-        guard let privateKeyCharacteristic = privateKeyCharacteristic, let peripheral = peripheral else {
-            print("Nie znaleziono charakterystyki klucza prywatnego.")
+        guard let privateKeyCharacteristic = privateKeyCharacteristic,
+              let peripheral = peripheral else {
+            print("Private key characteristic not found.")
             return
         }
 
         let privateKey = "nuvijridkvinorj"
         if let data = privateKey.data(using: .utf8) {
             peripheral.writeValue(data, for: privateKeyCharacteristic, type: .withResponse)
-            print("Wysłano klucz prywatny: \(privateKey)")
+            print("Private key has been sent: \(privateKey)")
         }
     }
 
     func saveBinaryFile(content: Data) {
         let fileName = "receivedFile.bin"
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
         
         do {
             try content.write(to: path)
-            print("Plik zapisany w: \(path)")
+            print("File saved to: \(path)")
         } catch {
-            print("Błąd podczas zapisywania pliku: \(error)")
+            print("Error saving file: \(error)")
         }
     }
     
-    // Funkcja usuwająca plik JSON
-        private func deleteJsonFile() {
-            let fileName = "exportedData.json"
-            let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
-            
-            if FileManager.default.fileExists(atPath: fileURL.path) {
-                do {
-                    try FileManager.default.removeItem(at: fileURL)
-                    print("Plik JSON został usunięty.")
-                } catch {
-                    print("Błąd podczas usuwania pliku JSON: \(error)")
-                }
-            } else {
-                print("Plik JSON nie istnieje, nie ma czego usuwać.")
+    func deleteJsonFile() {
+        let fileName = "exportedData.json"
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+                print("JSON file has been removed.")
+            } catch {
+                print("Error removing JSON file: \(error)")
             }
+        } else {
+            print("JSON file does not exist, nothing to remove.")
         }
+    }
 
     func disconnect() {
         if let peripheral = peripheral {
             centralManager.cancelPeripheralConnection(peripheral)
             isConnected = false
-            print("Rozłączono z urządzeniem.")
+            print("Disconnected from the device.")
         }
     }
     
     func startNotifications() {
         guard let characteristic = dataCharacteristic, let peripheral = peripheral else {
-            print("Nie znaleziono charakterystyki danych lub urządzenia.")
+            print("Data characteristic or device not found.")
             return
         }
-
-        // Resetuj liczniki
+        
+        self.isDataFetched = false
         self.currentDataSize = 0
         self.expectedDataSize = nil
         self.messageParts = Data()
-        self.receivedData = Data() // Reset wyświetlanej liczby danych
+        self.receivedData = Data()
         
-        // Najpierw wyłącz powiadomienia
         peripheral.setNotifyValue(false, for: characteristic)
         isSubscribed = false
 
-        // Krótkie opóźnienie przed ponowną subskrypcją (opcjonalne, aby uniknąć konfliktów)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            // Teraz włącz powiadomienia
             peripheral.setNotifyValue(true, for: characteristic)
             self.isSubscribed = true
 
-            // Obsługa deskryptora 2902
             if let descriptors = characteristic.descriptors {
                 for descriptor in descriptors where descriptor.uuid == CBUUID(string: "2902") {
-                    let enableValue = Data([0x01, 0x00]) // Włącz powiadomienia
+                    let enableValue = Data([0x01, 0x00])
                     peripheral.writeValue(enableValue, for: descriptor)
-                    print("Subskrypcja na Notify została włączona.")
+                    print("Notify subscription has been enabled.")
                 }
             }
         }
     }
 
-
     func stopNotifications() {
         guard let characteristic = dataCharacteristic, let peripheral = peripheral else {
-            print("Nie znaleziono charakterystyki danych lub urządzenia.")
+            print("Data or device characteristic not found.")
             return
         }
 
@@ -431,11 +458,10 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
         if let descriptors = characteristic.descriptors {
             for descriptor in descriptors where descriptor.uuid == CBUUID(string: "2902") {
-                let disableValue = Data([0x00, 0x00]) // Wyłącz powiadomienia
+                let disableValue = Data([0x00, 0x00])
                 peripheral.writeValue(disableValue, for: descriptor)
-                print("Subskrypcja na Notify została wyłączona.")
+                print("Notify subscription has been disabled.")
             }
         }
     }
-
 }

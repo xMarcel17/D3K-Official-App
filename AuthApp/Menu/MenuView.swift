@@ -23,7 +23,7 @@ struct MenuView: View {
             .environmentObject(languageManager)
             .tabItem {
                 Image(systemName: "house.fill")
-                Text("HOME")
+                Text(languageManager.localizedString(forKey: "home"))
             }
 
             // SmartbandView
@@ -35,7 +35,7 @@ struct MenuView: View {
             .environmentObject(languageManager)
             .tabItem {
                 Image(systemName: "applewatch")
-                Text("BAND")
+                Text(languageManager.localizedString(forKey: "band"))
             }
 
             // ProfileView
@@ -51,7 +51,7 @@ struct MenuView: View {
             .environmentObject(languageManager)
             .tabItem {
                 Image(systemName: "person.crop.circle.fill")
-                Text("PROFILE")
+                Text(languageManager.localizedString(forKey: "profile"))
             }
 
             // SettingsView
@@ -63,18 +63,17 @@ struct MenuView: View {
             .environmentObject(languageManager)
             .tabItem {
                 Image(systemName: "gearshape.fill")
-                Text("SETTINGS")
+                Text(languageManager.localizedString(forKey: "settings"))
             }
         }
         .alert(isPresented: $showWelcomeAlert) {
             Alert(
-                title: Text("Notification"),
-                message: Text("Login successful!"),
+                title: Text(languageManager.localizedString(forKey: "login_successful")),
+                message: Text(languageManager.localizedString(forKey: "login_successful_message")),
                 dismissButton: .default(Text("OK"))
             )
-        }
-        .accessibilityIdentifier("loginAlert") // Dodano identyfikator
 
+        }
         .onAppear {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 for window in windowScene.windows {

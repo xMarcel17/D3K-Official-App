@@ -10,6 +10,8 @@ struct SingleTraining: View {
     @State private var showSpeedGraph = false
     @State private var showHeartrateGraph = false
     
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
     var body: some View {
         ZStack{
             backgroundView
@@ -37,12 +39,12 @@ struct SingleTraining: View {
     
     var backgroundView: some View {
         ZStack{
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             // Gradientowe tło
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.75, green: 0.73, blue: 0.87),
-                    Color(red: 0.5, green: 0.63, blue: 0.83)
-                ]),
+                gradient: Gradient(colors: [topColor, bottomColor]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -53,6 +55,7 @@ struct SingleTraining: View {
                 .frame(width: 600, height: 600)
                 
         }
+
     }
     
     var contentView: some View {
@@ -60,7 +63,7 @@ struct SingleTraining: View {
             VStack (spacing: 12){
                 Text(workout.type)
                     .font(
-                        Font.custom("Roboto Mono", size: 30)
+                        Font.custom("Roboto Mono", size: 27)
                             .weight(.bold)
                     )
                     .multilineTextAlignment(.center)
@@ -102,7 +105,7 @@ struct SingleTraining: View {
                           .padding(.leading, 80)
 
                         
-                        Text("Speed Graph")
+                        Text(languageManager.localizedString(forKey: "speed_graph"))
                             .font(
                                 Font.custom("Roboto Mono", size: 24)
                                     .weight(.bold)
@@ -137,7 +140,7 @@ struct SingleTraining: View {
                           .frame(width: 325, height: 100)
                           .opacity(0.35)
                           
-                        Text("Heartrate Graph")
+                        Text(languageManager.localizedString(forKey: "heartrate_graph"))
                             .font(
                                 Font.custom("Roboto Mono", size: 24)
                                     .weight(.bold)
@@ -169,7 +172,7 @@ struct SingleTraining: View {
                       .padding(.trailing, 40)
                     
                     HStack(spacing: 100){
-                        Text("Time:")
+                        Text(languageManager.localizedString(forKey: "time"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -202,7 +205,7 @@ struct SingleTraining: View {
                           .frame(width: 90, height: 90)
                           .padding(.leading, 50)
                         
-                        Text("Calories:")
+                        Text(languageManager.localizedString(forKey: "calories"))
                           .font(
                             Font.custom("Roboto Mono", size: 20)
                               .weight(.bold)
@@ -222,9 +225,9 @@ struct SingleTraining: View {
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             
-                            Text("KCAL")
+                            Text("kcal")
                               .font(
-                                Font.custom("Roboto Mono", size: 14)
+                                Font.custom("Roboto Mono", size: 16)
                                   .weight(.bold)
                               )
                               .multilineTextAlignment(.center)
@@ -245,7 +248,7 @@ struct SingleTraining: View {
                           .frame(width: 80, height: 80)
                           .padding(.leading, 50)
                         
-                        Text("Distance:")
+                        Text(languageManager.localizedString(forKey: "distance"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -265,9 +268,9 @@ struct SingleTraining: View {
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             
-                            Text("KM")
+                            Text("m")
                               .font(
-                                Font.custom("Roboto Mono", size: 14)
+                                Font.custom("Roboto Mono", size: 16)
                                   .weight(.bold)
                               )
                               .multilineTextAlignment(.center)
@@ -292,7 +295,7 @@ struct SingleTraining: View {
                           .padding(.leading, 40)
                           .padding(.bottom, 5)
                         
-                        Text("Avg Steps:")
+                        Text(languageManager.localizedString(forKey: "avg_steps"))
                           .font(
                             Font.custom("Roboto Mono", size: 20)
                               .weight(.bold)
@@ -323,7 +326,7 @@ struct SingleTraining: View {
                           .frame(width: 90, height: 90)
                           .padding(.leading, 35)
                         
-                        Text("Avg BPM:")
+                        Text(languageManager.localizedString(forKey: "avg_bpm"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -342,9 +345,9 @@ struct SingleTraining: View {
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             
-                            Text("PBM")
+                            Text("bpm")
                               .font(
-                                Font.custom("Roboto Mono", size: 14)
+                                Font.custom("Roboto Mono", size: 16)
                                   .weight(.bold)
                               )
                               .multilineTextAlignment(.center)
@@ -364,11 +367,12 @@ struct SingleTraining: View {
         }
         .padding(.top, 40)
         .fullScreenCover(isPresented: $showSpeedGraph) {
-            SpeedGraph()
+            SpeedGraph(trainingType: workout.type, trainingDate: formatDate(workout.date), dateForQuery: workout.date)
         }
         .fullScreenCover(isPresented: $showHeartrateGraph) {
             HeartrateGraph(trainingType: workout.type, trainingDate: formatDate(workout.date), dateForQuery: workout.date)
         }
+        
     }
     
     func formatDate(_ dateString: String) -> String {
@@ -406,6 +410,23 @@ struct SingleTraining: View {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
 }
 
 struct SingleTraining_Previews: PreviewProvider {

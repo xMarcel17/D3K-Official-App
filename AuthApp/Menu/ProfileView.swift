@@ -11,6 +11,9 @@ struct ProfileView: View {
     @Binding var usernameField: String
     @Binding var passwordField: String
     @Binding var rememberMe: Bool
+    
+    @State private var avatarURL: URL? // URL pobranego zdjęcia
+    @State private var isAvatarLoaded = false // Czy udało się pobrać zdjęcie?
 
     // Dodane zmienne @State do przechowywania danych użytkownika
     @State private var gender: String = "Loading..."
@@ -21,23 +24,44 @@ struct ProfileView: View {
     @State private var tdee: String = "Loading..."
     @State private var isLoading = true
 
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
     var body: some View {
         ZStack {
             // Duży ZStack (niezmieniony)
             ZStack {
                 VStack(spacing: 20) {
-                    Rectangle()
-                        .foregroundColor(.clear)
-                        .frame(width: 209, height: 209)
-                        .background(
+        
+                    ZStack{
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 237, height: 237)
+                            .shadow(radius: 10)
+                        
+                        if isAvatarLoaded, let url = avatarURL {
+                            AsyncImage(url: url) { phase in
+                                if let image = phase.image {
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 209, height: 209)
+                                        .clipShape(Circle())
+                                } else {
+                                    Image("BasicProfilePicture")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 209, height: 209)
+                                        .clipShape(Circle())
+                                }
+                            }
+                        } else {
                             Image("BasicProfilePicture")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 209, height: 209)
-                                .clipped()
-                        )
-                        .cornerRadius(209)
-                    
+                                .clipShape(Circle())
+                        }
+                    }
+
                     Text(username)
                         .font(
                             Font.custom("Roboto Mono", size: 40)
@@ -56,7 +80,7 @@ struct ProfileView: View {
                     
                     HStack (spacing: 125){
                         VStack (alignment: .leading, spacing: 10){
-                            Text("Gender:")
+                            Text(languageManager.localizedString(forKey: "sex:"))
                               .font(
                                 Font.custom("Roboto Mono", size: 24)
                                   .weight(.bold)
@@ -64,7 +88,7 @@ struct ProfileView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             
                             
-                            Text("Age:")
+                            Text(languageManager.localizedString(forKey: "age:"))
                               .font(
                                 Font.custom("Roboto Mono", size: 24)
                                   .weight(.bold)
@@ -72,7 +96,7 @@ struct ProfileView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                             
                             
-                            Text("Weight:")
+                            Text(languageManager.localizedString(forKey: "weight"))
                               .font(
                                 Font.custom("Roboto Mono", size: 24)
                                   .weight(.bold)
@@ -80,7 +104,7 @@ struct ProfileView: View {
                               .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69))
                  
                             
-                            Text("Height:")
+                            Text(languageManager.localizedString(forKey: "height"))
                               .font(
                                 Font.custom("Roboto Mono", size: 24)
                                   .weight(.bold)
@@ -167,7 +191,7 @@ struct ProfileView: View {
                     Button(action: {
                         logout()
                     }) {
-                        Text("Logout")
+                        Text(languageManager.localizedString(forKey: "logout"))
                             .font(Font.custom("RobotoMono-Bold", size: 23))
                             .multilineTextAlignment(.center)
                             .foregroundColor(.white)
@@ -186,41 +210,89 @@ struct ProfileView: View {
                             .cornerRadius(100.0)
                             .shadow(radius: 5)
                     }
-                    .padding(.top, 8)
+                    .padding(.bottom, 6)
                 }
                 .padding(.bottom, 10)
             }
             .padding(.bottom, 10)
             
             ZStack {
+                // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+                let (topColor, bottomColor) = colorsForTheme(currentTheme)
+                
                 Rectangle()
                     .foregroundColor(.clear)
                     .frame(width: abs(500), height: abs(100))
                     .background(
                         LinearGradient(
-                            stops: [
-                                Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                            ],
-                            startPoint: UnitPoint(x: 0.5, y: 0),
-                            endPoint: UnitPoint(x: 0.5, y: 1)
+                            gradient: Gradient(colors: [topColor, bottomColor]),
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
                         .frame(width: abs(500), height: abs(100))
                         .shadow(radius: 5)
                     )
             }
             .padding(.top, 800)
+            // Przy pojawieniu się widoku wczytujemy wartość z UserDefaults
+            .onAppear {
+                let userTheme = UserDefaults.standard.string(forKey: "appTheme") ?? "Theme1"
+                self.currentTheme = userTheme
+            }
         }
         .onAppear {
             fetchUserData()
+            fetchAvatar()
         }
         .background(.white)
     }
 
+    func fetchAvatar() {
+        guard let userId = UserDefaults.standard.string(forKey: "user_id"),
+              let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
+            print("Error: Missing User ID or Session ID")
+            return
+        }
+
+        let url = URL(string: "http://192.168.1.22:8000/auth/avatar?user_id=\(userId)")!
+        var request = URLRequest(url: url)
+        request.setValue(sessionId, forHTTPHeaderField: "session-id")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Avatar download error:", error.localizedDescription)
+                    self.isAvatarLoaded = false
+                    return
+                }
+
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                      let avatarLink = jsonResponse["avatar_link"] as? String else {
+                    print("Error: Invalid server response")
+                    self.isAvatarLoaded = false
+                    return
+                }
+
+                let fixedAvatarLink = avatarLink.replacingOccurrences(of: "localhost", with: "192.168.1.22")
+
+                if let avatarURL = URL(string: fixedAvatarLink) {
+                    self.avatarURL = avatarURL
+                    self.isAvatarLoaded = true
+                } else {
+                    print("Error: Invalid URL after replacement")
+                    self.isAvatarLoaded = false
+                }
+            }
+        }.resume()
+    }
+    
     func fetchUserData() {
         guard let userId = UserDefaults.standard.string(forKey: "user_id"),
               let sessionId = UserDefaults.standard.string(forKey: "session_id"),
-              let url = URL(string: "http://192.168.1.20:8000/health/users/?userId=\(userId)") else {
+              let url = URL(string: "http://192.168.1.22:8000/health/users/?userId=\(userId)") else {
             print("Invalid userId or sessionId")
             return
         }
@@ -278,7 +350,7 @@ struct ProfileView: View {
         // Sprawdzenie, czy mamy zapisany session_id
         if let sessionId = UserDefaults.standard.string(forKey: "session_id") {
             // Wywołanie żądania do endpointa wylogowania
-            guard let url = URL(string: "http://192.168.1.20:8000/auth/logout") else {
+            guard let url = URL(string: "http://192.168.1.22:8000/auth/logout") else {
                 print("Invalid logout URL")
                 return
             }
@@ -325,5 +397,39 @@ struct ProfileView: View {
         UserDefaults.standard.removeObject(forKey: "user_id")
 
         print("Session ID and User ID cleared, Remember Me unchecked.")
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
+    }
+}
+
+struct ProfileView_Previews: PreviewProvider {
+    static var previews: some View {
+        ProfileView(
+            username: "TestUser",                      // Przykładowa nazwa użytkownika
+            isLoggedIn: .constant(true),               // Binding z przykładową wartością "true"
+            showWelcomeAlert: .constant(false),        // Binding z przykładową wartością "false"
+            usernameField: .constant("TestUser"),      // Binding do pola nazwy użytkownika
+            passwordField: .constant("password123"),   // Binding do pola hasła
+            rememberMe: .constant(true)                // Binding do pola "Remember me"
+        )
+        .environmentObject(WebSocketManager())        // Dodaj obiekt WebSocketManager
+        .environmentObject(LocalizationManager())     // Dodaj obiekt LocalizationManager
+        .previewDisplayName("ProfileView Preview")
     }
 }

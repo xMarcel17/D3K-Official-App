@@ -9,8 +9,18 @@ struct MainView: View {
     @State private var showBMIKCALCalc = false // Zmienna kontrolująca pełnoekranowe przejście
     @State private var showTrainings = false // Zmienna kontrolująca pełnoekranowe przejście
     
+    @State private var avatarURL: URL? // URL pobranego zdjęcia
+    @State private var isAvatarLoaded = false // Czy udało się pobrać zdjęcie?
+
+    @State private var showBadgesForumAlert = false
+    
+    @AppStorage("appTheme") private var currentTheme: String = "Theme1"
+    
     var body: some View {
         ZStack {
+            // Tło – korzystamy ze zmiennych, które zależą od currentTheme
+            let (topColor, bottomColor) = colorsForTheme(currentTheme)
+            
             ZStack {
                 VStack(spacing: 15) {
                     ZStack {
@@ -18,25 +28,62 @@ struct MainView: View {
                             .foregroundColor(.clear)
                             .frame(width: 343, height: 78)
                             .background(
+                                // Gradientowe tło
                                 LinearGradient(
-                                    stops: [
-                                        Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                        Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                    ],
-                                    startPoint: UnitPoint(x: 0.5, y: 0),
-                                    endPoint: UnitPoint(x: 0.5, y: 1)
+                                    gradient: Gradient(colors: [topColor, bottomColor]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
                                 )
                             )
                             .cornerRadius(50)
                             .shadow(radius: 5)
                         
-                        Text("Welcome, \(username)!")
+                        Text(String(format: languageManager.localizedString(forKey: "welcome_user"),
+                                    username))
+                        //Text("Welcome, testestestestsetestes!")
                             .font(Font.custom("RobotoMono-Bold", size: 18))
-                            .multilineTextAlignment(.center)
+                            .frame(width: 250, height: 58)
+                            .multilineTextAlignment(.leading)
                             .foregroundColor(.white)
-                            .padding(.trailing, 70)
+                            .padding(.trailing, 60)
+                            .accessibilityIdentifier("welcomeIdentifier")
+                        
+                        ZStack{
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 60, height: 60)
+                                .shadow(radius: 10)
+                            
+                            if isAvatarLoaded, let url = avatarURL {
+                                AsyncImage(url: url) { phase in
+                                    if let image = phase.image {
+                                        image.resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                    } else {
+                                        Image("BasicProfilePicture")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                    }
+                                }
+                            } else {
+                                Image("BasicProfilePicture")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .padding(.leading, 260)
+                        .onAppear {
+                            fetchAvatar()
+                        }
+                            
                     }
-                    .frame(width: 343, height: 78)
+                    .frame(width: 353, height: 78)
                     
                     Button {
                         showTrainings = true
@@ -47,12 +94,9 @@ struct MainView: View {
                                 .frame(width: 343, height: 211)
                                 .background(
                                     LinearGradient(
-                                        stops: [
-                                            Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                            Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                        ],
-                                        startPoint: UnitPoint(x: 0.5, y: 0),
-                                        endPoint: UnitPoint(x: 0.5, y: 1)
+                                        gradient: Gradient(colors: [topColor, bottomColor]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
                                     )
                                 )
                                 .cornerRadius(40)
@@ -71,7 +115,7 @@ struct MainView: View {
                                 .padding(.bottom, 40)
                                 .padding(.trailing, 20)
                             
-                            Text("My trainings")
+                            Text(languageManager.localizedString(forKey: "my_trainings"))
                                 .font(Font.custom("RobotoMono-Bold", size: 28))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
@@ -83,7 +127,7 @@ struct MainView: View {
                     HStack(spacing: 15) {
                         VStack(spacing: 15) {
                             Button {
-                                // Dodaj logikę przejścia tutaj, jeśli potrzebujesz
+                                showBadgesForumAlert = true
                             } label: {
                                 ZStack {
                                     Rectangle()
@@ -91,12 +135,9 @@ struct MainView: View {
                                         .frame(width: 165, height: 172)
                                         .background(
                                             LinearGradient(
-                                                stops: [
-                                                    Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                                    Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                                ],
-                                                startPoint: UnitPoint(x: 0.5, y: 0),
-                                                endPoint: UnitPoint(x: 0.5, y: 1)
+                                                gradient: Gradient(colors: [topColor, bottomColor]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
                                             )
                                         )
                                         .cornerRadius(40)
@@ -117,7 +158,7 @@ struct MainView: View {
                                         .padding(.bottom, 5)
                                         .padding(.leading, 40)
                                     
-                                    Text("Forum")
+                                    Text(languageManager.localizedString(forKey: "forum"))
                                         .font(Font.custom("RobotoMono-Bold", size: 28))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(.white)
@@ -127,7 +168,7 @@ struct MainView: View {
                             }
                             
                             Button {
-                                // Dodaj logikę przejścia tutaj, jeśli potrzebujesz
+                                showBadgesForumAlert = true
                             } label: {
                                 ZStack {
                                     Rectangle()
@@ -135,12 +176,9 @@ struct MainView: View {
                                         .frame(width: 165, height: 172)
                                         .background(
                                             LinearGradient(
-                                                stops: [
-                                                    Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                                    Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                                ],
-                                                startPoint: UnitPoint(x: 0.5, y: 0),
-                                                endPoint: UnitPoint(x: 0.5, y: 1)
+                                                gradient: Gradient(colors: [topColor, bottomColor]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
                                             )
                                         )
                                         .cornerRadius(40)
@@ -161,7 +199,7 @@ struct MainView: View {
                                         .padding(.bottom, 12)
                                         .padding(.trailing, 45)
                                     
-                                    Text("Badges")
+                                    Text(languageManager.localizedString(forKey: "badges"))
                                         .font(Font.custom("RobotoMono-Bold", size: 28))
                                         .multilineTextAlignment(.center)
                                         .foregroundColor(.white)
@@ -181,12 +219,9 @@ struct MainView: View {
                                     .frame(width: 163, height: 359)
                                     .background(
                                         LinearGradient(
-                                            stops: [
-                                                Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                                Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                            ],
-                                            startPoint: UnitPoint(x: 0.5, y: 0),
-                                            endPoint: UnitPoint(x: 0.5, y: 1)
+                                            gradient: Gradient(colors: [topColor, bottomColor]),
+                                            startPoint: .top,
+                                            endPoint: .bottom
                                         )
                                     )
                                     .cornerRadius(40)
@@ -211,7 +246,7 @@ struct MainView: View {
                                     .foregroundColor(.white)
                                     .padding(.top, 235)
                                 
-                                Text("Calculator")
+                                Text(languageManager.localizedString(forKey: "calculator"))
                                     .font(Font.custom("RobotoMono-Bold", size: 20))
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(.white)
@@ -240,12 +275,9 @@ struct MainView: View {
                         .frame(width: abs(500), height: abs(100))
                         .background(
                             LinearGradient(
-                                stops: [
-                                    Gradient.Stop(color: Color(red: 0.75, green: 0.73, blue: 0.87), location: 0.00),
-                                    Gradient.Stop(color: Color(red: 0.5, green: 0.63, blue: 0.83), location: 1.00),
-                                ],
-                                startPoint: UnitPoint(x: 0.5, y: 0),
-                                endPoint: UnitPoint(x: 0.5, y: 1)
+                                gradient: Gradient(colors: [topColor, bottomColor]),
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
                             .frame(width: abs(500), height: abs(100))
                             .shadow(radius: 5)
@@ -255,21 +287,84 @@ struct MainView: View {
             }
             .background(.white)
         }
+        .alert(isPresented: $showBadgesForumAlert) {
+            Alert(
+                title: Text(languageManager.localizedString(forKey: "coming_soon")),
+                message: Text(languageManager.localizedString(forKey: "coming_soon_message")),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+    
+    func fetchAvatar() {
+        guard let userId = UserDefaults.standard.string(forKey: "user_id"),
+              let sessionId = UserDefaults.standard.string(forKey: "session_id") else {
+            print("Error: Missing User ID or Session ID")
+            return
+        }
+
+        let url = URL(string: "http://192.168.1.22:8000/auth/avatar?user_id=\(userId)")!
+        var request = URLRequest(url: url)
+        request.setValue(sessionId, forHTTPHeaderField: "session-id")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Avatar download error:", error.localizedDescription)
+                    self.isAvatarLoaded = false
+                    return
+                }
+
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                      let avatarLink = jsonResponse["avatar_link"] as? String else {
+                    print("Error: Invalid server response")
+                    self.isAvatarLoaded = false
+                    return
+                }
+
+                let fixedAvatarLink = avatarLink.replacingOccurrences(of: "localhost", with: "192.168.1.22")
+
+                if let avatarURL = URL(string: fixedAvatarLink) {
+                    self.avatarURL = avatarURL
+                    self.isAvatarLoaded = true
+                } else {
+                    print("Error: Invalid URL after replacement")
+                    self.isAvatarLoaded = false
+                }
+            }
+        }.resume()
+    }
+    
+    // Funkcja zwraca parę kolorów (górny i dolny) dla danego motywu
+    private func colorsForTheme(_ theme: String) -> (Color, Color) {
+        switch theme {
+        case "Theme2":
+            // Przykładowy drugi motyw
+            return (
+                Color(red: 0.65, green: 0.83, blue: 0.95),
+                Color(red: 0.19, green: 0.30, blue: 0.38)
+            )
+        default:
+            // Domyślny motyw (Theme1)
+            return (
+                Color(red: 0.75, green: 0.73, blue: 0.87),
+                Color(red: 0.5, green: 0.63, blue: 0.83)
+            )
+        }
     }
 }
 
+struct MainView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            MainView(username: "TestUser")
+                .environmentObject(WebSocketManager())   // Jeżeli w projekcie tworzysz obiekt WebSocketManager
+                .environmentObject(LocalizationManager()) // Jeżeli w projekcie tworzysz obiekt LocalizationManager
+        }
+        .preferredColorScheme(.light) // Podgląd w jasnym trybie (opcjonalnie)
+    }
+}
 
-//struct MainView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MainView(
-//            username: "TestUser",                     // Przykładowa nazwa użytkownika
-//            isLoggedIn: .constant(true),              // Ustawienie przykładowej wartości Binding
-//            showWelcomeAlert: .constant(false),       // Binding dla alertu
-//            usernameField: .constant("TestUser"),     // Binding dla pola nazwy użytkownika
-//            passwordField: .constant("password123"),  // Binding dla pola hasła
-//            rememberMe: .constant(true)              // Binding dla przełącznika "zapamiętaj mnie",
-//        )
-//        .environmentObject(BLEManager())             // Przykładowe środowisko BLEManager
-//        //.preferredColorScheme(.light)                 // Dodatkowe zabezpieczenie dla podglądu
-//    }
-//}

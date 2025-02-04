@@ -11,7 +11,7 @@ struct BMIOutcome: View {
     var body: some View {
         VStack(spacing: 20) {
             
-            Text("Your BMI is:")
+            Text(languageManager.localizedString(forKey: "bmioutcome"))
               .font(
                 Font.custom("Roboto Mono", size: 24)
                   .weight(.bold)
@@ -91,13 +91,13 @@ struct BMIOutcome: View {
     // Funkcja zwracająca odpowiedni kolor dla statusu BMI
     func colorForStatus(status: String) -> Color {
         switch status {
-        case "Normal":
+        case languageManager.localizedString(forKey: "normal"):
             return Color.green
-        case "Overweight":
+        case languageManager.localizedString(forKey: "overweight"):
             return Color.orange
-        case "Obesity":
+        case languageManager.localizedString(forKey: "obesity"):
             return Color.red
-        case "Underweight":
+        case languageManager.localizedString(forKey: "underweight"):
             return Color.blue.opacity(0.7) // Jasny niebieski
         default:
             return Color.gray // Domyślny kolor, jeśli status jest nieznany
@@ -105,11 +105,33 @@ struct BMIOutcome: View {
     }
 }
 
-//struct BMIOutcome_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BMIOutcome(
-//        )
-//    }
-//}
+struct BMIOutcome_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            BMIOutcome(bmi: 22.45, status: "Normal")
+                .previewDisplayName("Normal BMI")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
+
+            BMIOutcome(bmi: 28.76, status: "Overweight")
+                .previewDisplayName("Overweight BMI")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
+
+            BMIOutcome(bmi: 31.22, status: "Obesity")
+                .previewDisplayName("Obesity BMI")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
+
+            BMIOutcome(bmi: 18.23, status: "Underweight")
+                .previewDisplayName("Underweight BMI")
+                .environmentObject(WebSocketManager())
+                .environmentObject(LocalizationManager())
+        }
+        .previewLayout(.sizeThatFits) // Aby widok wypełnił się do rozmiaru kontenera
+        .padding()
+    }
+}
+
 
 

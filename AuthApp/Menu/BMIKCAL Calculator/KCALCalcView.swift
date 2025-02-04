@@ -19,6 +19,9 @@ struct KCALCalcView: View {
     @State private var kcal: Float = 0.0
     @State private var calculatedKCAL: Int = 0 // Wynik KCAL do przekazania do KCALOutcome
     
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
     var body: some View {
         ZStack{
             backgroundView
@@ -41,6 +44,13 @@ struct KCALCalcView: View {
             .padding(.horizontal)
             .padding(20) // Adjust padding as needed
             .padding(.top, -400) // Adjust padding as needed
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text(languageManager.localizedString(forKey: "warning")),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
     
@@ -66,7 +76,7 @@ struct KCALCalcView: View {
     
     var contentView: some View {
         VStack{
-            Text("Calories\nCalculator")
+            Text(languageManager.localizedString(forKey: "kcalcalc"))
               .font(
                 Font.custom("Roboto Mono", size: 36)
                   .weight(.bold)
@@ -78,7 +88,7 @@ struct KCALCalcView: View {
             VStack (spacing: 26){
                 HStack (spacing: 47){
                     VStack{
-                        Text("Weight(kg)")
+                        Text(languageManager.localizedString(forKey: "weightkg"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -100,7 +110,7 @@ struct KCALCalcView: View {
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
                             if weight.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                                Text("Weight")
+                                Text(languageManager.localizedString(forKey: "weight"))
                                     .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                             }
@@ -110,7 +120,7 @@ struct KCALCalcView: View {
                     
                     
                     VStack{
-                        Text("Height(cm)")
+                        Text(languageManager.localizedString(forKey: "heightcm"))
                             .font(
                                 Font.custom("Roboto Mono", size: 20)
                                     .weight(.bold)
@@ -133,7 +143,7 @@ struct KCALCalcView: View {
                                 .font(.system(size: 36, weight: .semibold, design: .monospaced))
                                 .shadow(radius: 5)
                             if height.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                                Text("Height")
+                                Text(languageManager.localizedString(forKey: "height"))
                                     .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                     .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                             }
@@ -144,7 +154,7 @@ struct KCALCalcView: View {
                 .frame(width: 337, height: 106)
                 
                 VStack{
-                    Text("Age")
+                    Text(languageManager.localizedString(forKey: "age_placeholder"))
                       .font(
                         Font.custom("Roboto Mono", size: 20)
                           .weight(.bold)
@@ -167,7 +177,7 @@ struct KCALCalcView: View {
                             .font(.system(size: 36, weight: .semibold, design: .monospaced))
                             .shadow(radius: 5)
                         if age.isEmpty { // Sprawdzamy, czy pole tekstowe jest puste
-                            Text("Age")
+                            Text(languageManager.localizedString(forKey: "age_placeholder"))
                                 .font(.system(size: 16, weight: .semibold, design: .monospaced))
                                 .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69, opacity: 0.75))
                         }
@@ -267,14 +277,14 @@ struct KCALCalcView: View {
                 .frame(width: 287, height: 96)
             
                 VStack (spacing: 5){
-                    Text("Activity level") // Tekst wyświetlany
+                    Text(languageManager.localizedString(forKey: "activitylevel")) // Tekst wyświetlany
                         .font(
                             Font.custom("Roboto Mono", size: 20)
                                 .weight(.bold)
                         )
                         .foregroundColor(Color(red: 0.27, green: 0.43, blue: 0.69)) // Kolor tekstu
                     
-                    Picker("Activity level", selection: $selectedLevel) {
+                    Picker(languageManager.localizedString(forKey: "activitylevel"), selection: $selectedLevel) {
                         ForEach(activityLevels, id: \.self) { level in
                             Text(level)
                                 .tag(level)
@@ -291,7 +301,7 @@ struct KCALCalcView: View {
                 Button(action: {
                     calculateKCAL()
                 }) {
-                    Text("CALCULATE")
+                    Text(languageManager.localizedString(forKey: "calculate"))
                         .font(Font.custom("RobotoMono-Bold", size: 24))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -338,6 +348,25 @@ struct KCALCalcView: View {
     ]
     
     func calculateKCAL() {
+        // Czy pola waga/wzrost/wiek są puste?
+        if weight.isEmpty || height.isEmpty || age.isEmpty {
+            alertMessage = languageManager.localizedString(forKey: "kcalalertfirst")
+            showAlert = true
+            return
+        }
+        // Czy wybrano płeć?
+        if !isMale && !isFemale {
+            alertMessage = languageManager.localizedString(forKey: "kcalalertsecond")
+            showAlert = true
+            return
+        }
+        // Czy wybrano poziom aktywności?
+        if selectedLevel.isEmpty {
+            alertMessage = languageManager.localizedString(forKey: "kcalalertthird")
+            showAlert = true
+            return
+        }
+        
         guard let weightValue = Float(weight),
               let heightValue = Float(height),
               let ageValue = Float(age),
